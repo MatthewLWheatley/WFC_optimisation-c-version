@@ -1,0 +1,16 @@
+﻿  Tile.cpp
+H:\Coding\WFC\WFC\WFC\Tile.cpp(22,68): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+H:\Coding\WFC\WFC\WFC\Tile.cpp(22,68): warning C4267:         with
+H:\Coding\WFC\WFC\WFC\Tile.cpp(22,68): warning C4267:         [
+H:\Coding\WFC\WFC\WFC\Tile.cpp(22,68): warning C4267:             _Ty=int
+H:\Coding\WFC\WFC\WFC\Tile.cpp(22,68): warning C4267:         ]
+  WFC.cpp
+H:\Coding\WFC\WFC\WFC\WFC.cpp(194,65): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
+H:\Coding\WFC\WFC\WFC\WFC.cpp(194,65): warning C4267:         with
+H:\Coding\WFC\WFC\WFC\WFC.cpp(194,65): warning C4267:         [
+H:\Coding\WFC\WFC\WFC\WFC.cpp(194,65): warning C4267:             _Ty=int
+H:\Coding\WFC\WFC\WFC\WFC.cpp(194,65): warning C4267:         ]
+H:\Coding\WFC\WFC\WFC\WFC.cpp(218,46): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
+H:\Coding\WFC\WFC\WFC\WFC.cpp(238,25): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
+  Generating Code...
+  WFC.vcxproj -> H:\Coding\WFC\WFC\x64\Debug\WFC.exe
