@@ -8,9 +8,15 @@ WFC::WFC(int _gridHeight, int _gridWidth)
     InitRules();
     std::cout << "Init Grid" << std::endl;
     InitGrid();
+    int count = 0;
     bool completed = false;
-    CollapseTile();
-    Propergate();
+    while (!completed)
+    {
+        CollapseTile();
+        Propergate();
+        count++;
+        if (count >= 5) return;
+    }
 }
 
 WFC::~WFC()

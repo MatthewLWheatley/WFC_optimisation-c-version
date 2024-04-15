@@ -28,25 +28,29 @@ void Tile::CollapseTile()
 
 void Tile::Propogate()
 {
-    std::vector<std::string> socketList;
-    for (auto ent: up->entropy) 
-    {
-        auto temp = (*entropyList)[ent];
-        if (std::find(socketList.begin(), socketList.end(), temp.down) == socketList.end())
+    std::vector<std::string> viableSockets;
+
+    // Assume up->entropy is filled correctly
+    if (up != nullptr) {
+        for (auto ent : up->entropy)
         {
-            socketList.push_back(temp.down);
+            auto temp = (*entropyList)[ent];
+            if (std::find(viableSockets.begin(), viableSockets.end(), temp.down) == viableSockets.end())
+            {
+                viableSockets.push_back(temp.down);
+            }
         }
     }
-    
-    for (int id = 0; id < entropy.size(); id++) 
-    {
-        auto temp2 = (*entropyList)[id].up
-    }
 
-    for (auto ent : socketList)
+    for (auto ent : viableSockets)
     {
         std::cout << ent << std::endl;
     }
+
+    auto it = std::remove_if(entropy.begin(), entropy.end(), [this, &viableSockets](int id) {
+        auto temp2 = (*entropyList)[id].up;
+        return std::find(viableSockets.begin(), viableSockets.end(), temp2) == viableSockets.end();
+        });
 }
 
 std::string ReverseString(const std::string& str) 
