@@ -4,10 +4,12 @@ using namespace std::chrono;
 
 WFC::WFC(int _gridHeight, int _gridWidth, int _seed)
 {
+    std::string temp = "data\\Data" + std::to_string(_seed) + ".json";
     seed = &_seed;
     width = _gridWidth;
     height = _gridHeight;
     //std::cout << "Init rules" << std::endl;
+    //fullGridTile.reserve(width * height);
     InitRules();
     //std::cout << "Init Grid" << std::endl;
     InitGrid();
@@ -64,7 +66,7 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed)
 
     std::vector<Tile> tiles;
     for (auto tile : fullGridTile) tiles.push_back(tile.second);
-    std::string temp = "file.json";
+    //std::cout << "data\\Data" + std::to_string(_seed) + ".json" << std::endl;
     writeToJson(tiles, temp);
 }
 
@@ -121,6 +123,8 @@ void WFC::InitRules()
 
 void WFC::InitGrid() 
 {
+    
+
     surroundingTile = Tile(-1, -1, entropyKeys, seed);
 
     if (WFCTYPE == 0) 
@@ -299,8 +303,8 @@ void WFC::writeToJson(const std::vector<Tile>& tiles, const std::string& filenam
         nlohmann::json ruleObj;
         ruleObj["Up"] = it->second.up;
         ruleObj["Right"] = it->second.right;
-        ruleObj["Down"] = it->second.down;
-        ruleObj["Left"] = it->second.left;
+        ruleObj["Down"] = ReverseString(it->second.down);
+        ruleObj["Left"] = ReverseString(it->second.left);
 
         j["EntropyList"][std::to_string(it->first)] = ruleObj; 
     }

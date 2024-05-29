@@ -13,6 +13,7 @@
 #include <unordered_set>
 #include <set>
 #include <queue>
+#include <unordered_map>
 
 class WFC
 {
@@ -36,7 +37,7 @@ public:
 	void writeToJson(const std::vector<Tile>& tiles, const std::string& filename);
 private:
 	int* seed = 0;
-	std::map<std::pair<int, int>, Tile> fullGridTile;
+	std::unordered_map<std::pair<int, int>, Tile, pair_hash> fullGridTile;
 	std::map<int, Rule> entropyList;
 	std::vector<int> entropyKeys;
 
