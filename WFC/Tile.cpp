@@ -16,9 +16,28 @@ void Tile::CollapseTile()
 {
     int _seed = *seed;
     std::mt19937 gen(_seed);
-    std::uniform_int_distribution<> distribution(0, entropy.size() - 1);
+
+    // Calculate the total weight of the entropy options
+    int total_weight = 0;
+    for (int value : entropy) {
+        total_weight += entropyList->at(value).weight;
+    }
+
+    // Generate a random number in the range of the total weight
+    std::uniform_int_distribution<> distribution(0, total_weight - 1);
     int rng = distribution(gen);
-    int chosen_value = entropy[rng];
+
+    // Select an option based on the weighted distribution
+    int accumulated_weight = 0;
+    int chosen_value = entropy[0];
+    for (int value : entropy) {
+        accumulated_weight += entropyList->at(value).weight;
+        if (rng < accumulated_weight) {
+            chosen_value = value;
+            break;
+        }
+    }
+
     entropy.clear();
     entropy.push_back(chosen_value);
     collapsed = true;

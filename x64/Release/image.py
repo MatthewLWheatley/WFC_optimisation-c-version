@@ -70,93 +70,6 @@ def map_string_to_tile_index(pattern):
     Returns:
     int: The corresponding tile index.
     """
-    ##---------
-    # circuits
-    ##---------
-    # mapping = {
-    #     ("AAA", "AAA", "AAA", "AAA"): [0],
-    #     ("BBB", "BBB", "BBB", "BBB"): [1],
-    #     ("BCB", "BBB", "BBB", "BBB"): [2],
-    #     ("BBB", "BCB", "BBB", "BBB"): [3],
-    #     ("BBB", "BBB", "BCB", "BBB"): [4],
-    #     ("BBB", "BBB", "BBB", "BCB"): [5],
-    #     ("BDB", "BBB", "BDB", "BBB"): [6],
-    #     ("BBB", "BDB", "BBB", "BDB"): [7],
-    #     ("BCB", "BBA", "AAA", "ABB"): [8],
-    #     ("ABB", "BCB", "BBA", "AAA"): [9],
-    #     ("AAA", "ABB", "BCB", "BBA"): [10],
-    #     ("BBA", "AAA", "ABB", "BCB"): [11],
-    #     ("BBA", "ABB", "BBB", "BBB"): [12],
-    #     ("BBB", "BBA", "ABB", "BBB"): [13],
-    #     ("BBB", "BBB", "BBA", "ABB"): [14],
-    #     ("ABB", "BBB", "BBB", "BBA"): [15],
-    #     ("BCB", "BBB", "BCB", "BBB"): [16,34],
-    #     ("BBB", "BCB", "BBB", "BCB"): [17,35],
-    #     ("BDB", "BCB", "BDB", "BCB"): [18],
-    #     ("BCB", "BDB", "BCB", "BDB"): [19],
-    #     ("BDB", "BBB", "BCB", "BBB"): [20],
-    #     ("BBB", "BDB", "BBB", "BCB"): [21],
-    #     ("BCB", "BBB", "BDB", "BBB"): [22],
-    #     ("BBB", "BCB", "BBB", "BDB"): [23],
-    #     ("BCB", "BCB", "BCB", "BBB"): [24],
-    #     ("BBB", "BCB", "BCB", "BCB"): [25],
-    #     ("BCB", "BBB", "BCB", "BCB"): [26],
-    #     ("BCB", "BCB", "BBB", "BCB"): [27],
-    #     ("BCB", "BCB", "BCB", "BCB"): [28, 29],
-    #     ("BCB", "BCB", "BBB", "BBB"): [30],
-    #     ("BBB", "BCB", "BCB", "BBB"): [31],
-    #     ("BBB", "BBB", "BCB", "BCB"): [32],
-    #     ("BCB", "BBB", "BBB", "BCB"): [33],
-    # }
-    ##---------
-    # knots
-    ##---------
-    # mapping = {
-    #     ("ABA","ABA","AAA","AAA"): [0],
-    #     ("AAA","ABA","ABA","AAA"): [1],
-    #     ("AAA","AAA","ABA","ABA"): [2],
-    #     ("ABA","AAA","AAA","ABA"): [3],
-    #     ("ABA","AAA","ABA","AAA"): [4],
-    #     ("AAA","ABA","AAA","ABA"): [5],
-    #     ("ABA","ABA","ABA","AAA"): [6],
-    #     ("AAA","ABA","ABA","ABA"): [7],
-    #     ("ABA","AAA","ABA","ABA"): [8],
-    #     ("ABA","ABA","ABA","ABA"): [9],
-    #     ("ABA","ABA","ABA","ABA"): [10,11]
-    # }
-    ##---------
-    # circles
-    ##---------
-    # mapping = {
-    #     ("AAA","AAA","AAA","AAA"): [0],
-
-    #     ("AAA","BBB","BBB","BBB"): [1],
-    #     ("BBB","AAA","BBB","BBB"): [2],
-    #     ("BBB","BBB","AAA","BBB"): [3],
-    #     ("BBB","BBB","BBB","AAA"): [4],
-
-    #     ("AAA","AAA","BBB","BBB"): [5],
-    #     ("BBB","AAA","AAA","BBB"): [6],
-    #     ("BBB","BBB","AAA","AAA"): [7],
-    #     ("AAA","BBB","BBB","AAA"): [8],
-
-    #     ("AAA","BBB","AAA","BBB"): [9],
-    #     ("BBB","AAA","BBB","AAA"): [10],
-
-    #     ("BBB","AAA","AAA","AAA"): [11],
-    #     ("AAA","BBB","AAA","AAA"): [12],
-    #     ("AAA","AAA","BBB","AAA"): [13],
-    #     ("AAA","AAA","AAA","BBB"): [14],
-
-    #     ("BBB","BBB","AAA","AAA"): [15],
-    #     ("AAA","BBB","BBB","AAA"): [16],
-    #     ("AAA","AAA","BBB","BBB"): [17],
-    #     ("BBB","AAA","AAA","BBB"): [18],
-
-    #     ("BBB","AAA","BBB","AAA"): [19],
-    #     ("AAA","BBB","AAA","BBB"): [20],
-    # }
-
     mapping = {
         ("BAA","AAB","BBB","BBB"): [0],
         ("BBB","BAA","AAB","BBB"): [1],
@@ -225,11 +138,11 @@ def create_image(data_array, tiles, suffix, tile_size, scale_factor=2):
     output_filename = f"output/image{suffix}.png"
     scaled_image.save(output_filename)
     #scaled_image.show()
-
+    
 if __name__ == "__main__":
     suffix = sys.argv[1] if len(sys.argv) > 1 else ""
+    tilesheet_path = sys.argv[2] if len(sys.argv) > 2 else "input/tile4.png"  # Default to "input/tile4.png" if not provided
     file_path = f"data/Data{suffix}.json"
-    tilesheet_path = "input/tile4.png"  # Set the correct path to your tilesheet
     tile_size = (16, 16)  # Set the correct tile size (width, height)
     
     if not os.path.exists(file_path):

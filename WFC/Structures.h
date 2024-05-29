@@ -7,6 +7,8 @@ struct Rule
 	std::string right;
 	std::string down;
 	std::string left;
+    int image = 1;
+    int weight = 1;
 };
 
 struct pair_hash {

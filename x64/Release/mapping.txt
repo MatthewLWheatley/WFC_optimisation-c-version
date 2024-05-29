@@ -1,0 +1,114 @@
+##---------
+    # circuits
+    ##---------
+    # mapping = {
+    #     ("AAA", "AAA", "AAA", "AAA"): [0],
+    #     ("BBB", "BBB", "BBB", "BBB"): [1],
+    #     ("BCB", "BBB", "BBB", "BBB"): [2],
+    #     ("BBB", "BCB", "BBB", "BBB"): [3],
+    #     ("BBB", "BBB", "BCB", "BBB"): [4],
+    #     ("BBB", "BBB", "BBB", "BCB"): [5],
+    #     ("BDB", "BBB", "BDB", "BBB"): [6],
+    #     ("BBB", "BDB", "BBB", "BDB"): [7],
+    #     ("BCB", "BBA", "AAA", "ABB"): [8],
+    #     ("ABB", "BCB", "BBA", "AAA"): [9],
+    #     ("AAA", "ABB", "BCB", "BBA"): [10],
+    #     ("BBA", "AAA", "ABB", "BCB"): [11],
+    #     ("BBA", "ABB", "BBB", "BBB"): [12],
+    #     ("BBB", "BBA", "ABB", "BBB"): [13],
+    #     ("BBB", "BBB", "BBA", "ABB"): [14],
+    #     ("ABB", "BBB", "BBB", "BBA"): [15],
+    #     ("BCB", "BBB", "BCB", "BBB"): [16,34],
+    #     ("BBB", "BCB", "BBB", "BCB"): [17,35],
+    #     ("BDB", "BCB", "BDB", "BCB"): [18],
+    #     ("BCB", "BDB", "BCB", "BDB"): [19],
+    #     ("BDB", "BBB", "BCB", "BBB"): [20],
+    #     ("BBB", "BDB", "BBB", "BCB"): [21],
+    #     ("BCB", "BBB", "BDB", "BBB"): [22],
+    #     ("BBB", "BCB", "BBB", "BDB"): [23],
+    #     ("BCB", "BCB", "BCB", "BBB"): [24],
+    #     ("BBB", "BCB", "BCB", "BCB"): [25],
+    #     ("BCB", "BBB", "BCB", "BCB"): [26],
+    #     ("BCB", "BCB", "BBB", "BCB"): [27],
+    #     ("BCB", "BCB", "BCB", "BCB"): [28, 29],
+    #     ("BCB", "BCB", "BBB", "BBB"): [30],
+    #     ("BBB", "BCB", "BCB", "BBB"): [31],
+    #     ("BBB", "BBB", "BCB", "BCB"): [32],
+    #     ("BCB", "BBB", "BBB", "BCB"): [33],
+    # }
+    ##---------
+    # knots
+    ##---------
+    # mapping = {
+    #     ("ABA","ABA","AAA","AAA"): [0],
+    #     ("AAA","ABA","ABA","AAA"): [1],
+    #     ("AAA","AAA","ABA","ABA"): [2],
+    #     ("ABA","AAA","AAA","ABA"): [3],
+    #     ("ABA","AAA","ABA","AAA"): [4],
+    #     ("AAA","ABA","AAA","ABA"): [5],
+    #     ("ABA","ABA","ABA","AAA"): [6],
+    #     ("AAA","ABA","ABA","ABA"): [7],
+    #     ("ABA","AAA","ABA","ABA"): [8],
+    #     ("ABA","ABA","ABA","ABA"): [9],
+    #     ("ABA","ABA","ABA","ABA"): [10,11]
+    # }
+    ##---------
+    # circles
+    ##---------
+    # mapping = {
+    #     ("AAA","AAA","AAA","AAA"): [0],
+
+    #     ("AAA","BBB","BBB","BBB"): [1],
+    #     ("BBB","AAA","BBB","BBB"): [2],
+    #     ("BBB","BBB","AAA","BBB"): [3],
+    #     ("BBB","BBB","BBB","AAA"): [4],
+
+    #     ("AAA","AAA","BBB","BBB"): [5],
+    #     ("BBB","AAA","AAA","BBB"): [6],
+    #     ("BBB","BBB","AAA","AAA"): [7],
+    #     ("AAA","BBB","BBB","AAA"): [8],
+
+    #     ("AAA","BBB","AAA","BBB"): [9],
+    #     ("BBB","AAA","BBB","AAA"): [10],
+
+    #     ("BBB","AAA","AAA","AAA"): [11],
+    #     ("AAA","BBB","AAA","AAA"): [12],
+    #     ("AAA","AAA","BBB","AAA"): [13],
+    #     ("AAA","AAA","AAA","BBB"): [14],
+
+    #     ("BBB","BBB","AAA","AAA"): [15],
+    #     ("AAA","BBB","BBB","AAA"): [16],
+    #     ("AAA","AAA","BBB","BBB"): [17],
+    #     ("BBB","AAA","AAA","BBB"): [18],
+
+    #     ("BBB","AAA","BBB","AAA"): [19],
+    #     ("AAA","BBB","AAA","BBB"): [20],
+    # }
+
+    mapping = {
+        ("BAA","AAB","BBB","BBB"): [0],
+        ("BBB","BAA","AAB","BBB"): [1],
+        ("BBB","BBB","BAA","AAB"): [2],
+        ("AAB","BBB","BBB","BAA"): [3],
+        ("AAA","AAB","BBB","BAA"): [4],
+        ("BAA","AAA","AAB","BBB"): [5],
+        ("BBB","BAA","AAA","AAB"): [6],
+        ("AAB","BBB","BAA","AAA"): [7],
+        ("AAA","AAA","AAA","AAA"): [8,15,16],
+        ("AAB","BAA","AAA","AAA"): [9],
+        ("AAA","AAB","BAA","AAA"): [10],
+        ("AAA","AAA","AAB","BAA"): [11],
+        ("BAA","AAA","AAA","AAB"): [12],
+        ("BBB","BBB","BBB","BBB"): [13,14,24,25],
+        ("BAB","BAB","BAB","BAB"): [17],
+        ("BBB","BAB","BBB","BBB"): [18],
+        ("BBB","BBB","BAB","BBB"): [19],
+        ("BBB","BBB","BBB","BAB"): [20],
+        ("BAB","BBB","BBB","BBB"): [21],
+        ("BBB","BAB","BBB","BAB"): [22],
+        ("BAB","BBB","BAB","BBB"): [23],
+        ("BAB","BAA","AAA","AAB"): [26],
+        ("AAB","BAB","BAA","AAA"): [27],
+        ("AAA","AAB","BAB","BAA"): [28],
+        ("BAA","AAA","AAB","BAB"): [29],
+    }

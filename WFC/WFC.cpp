@@ -80,30 +80,20 @@ void WFC::InitRules()
     std::vector<std::string> _types = { "AAAA","ABBA","ACA", "ADA", "AEA", "AFA", "AGA"};
     std::vector<Rule> _rules;
 
-    //_rules.push_back({ _types[0],_types[0],ReverseString(_types[1]) ,ReverseString(_types[1]) });
-    //_rules.push_back({ _types[0],_types[1],ReverseString(_types[1]) ,ReverseString(_types[0]) });
-    //_rules.push_back({ _types[1],_types[1],ReverseString(_types[0]) ,ReverseString(_types[0]) });
-    //_rules.push_back({ _types[1],_types[0],ReverseString(_types[0]) ,ReverseString(_types[1]) });
-    //_rules.push_back({ _types[0],_types[1],ReverseString(_types[1]) ,ReverseString(_types[1]) });
-    //_rules.push_back({ _types[1],_types[0],ReverseString(_types[1]) ,ReverseString(_types[1]) });
-    //_rules.push_back({ _types[1],_types[1],ReverseString(_types[0]) ,ReverseString(_types[1]) });
-    //_rules.push_back({ _types[1],_types[1],ReverseString(_types[1]) ,ReverseString(_types[0]) });
-    _rules.push_back({"BAA", "AAB", ReverseString("BBB"), ReverseString("BBB")});
+    _rules.push_back({"BAA", "AAB", ReverseString("BBB"), ReverseString("BBB"),1,1});
     _rules.push_back({"BBB", "BAA", ReverseString("AAB"), ReverseString("BBB")});
     _rules.push_back({"BBB", "BBB", ReverseString("BAA"), ReverseString("AAB")});
     _rules.push_back({"AAB", "BBB", ReverseString("BBB"), ReverseString("BAA")});
-    _rules.push_back({"AAA", "AAB", ReverseString("BBB"), ReverseString("BAA")});
-    _rules.push_back({"BAA", "AAA", ReverseString("AAB"), ReverseString("BBB")});
-    _rules.push_back({"BBB", "BAA", ReverseString("AAA"), ReverseString("AAB")});
-    _rules.push_back({"AAB", "BBB", ReverseString("BAA"), ReverseString("AAA")});
-    _rules.push_back({"AAA", "AAA", ReverseString("AAA"), ReverseString("AAA")});
+    _rules.push_back({"AAA", "AAB", ReverseString("BBB"), ReverseString("BAA"),1,2});
+    _rules.push_back({"BAA", "AAA", ReverseString("AAB"), ReverseString("BBB"),1,2});
+    _rules.push_back({ "BBB", "BAA", ReverseString("AAA"), ReverseString("AAB"),1,2});
+    _rules.push_back({"AAB", "BBB", ReverseString("BAA"), ReverseString("AAA"),1,2});
+    _rules.push_back({"AAA", "AAA", ReverseString("AAA"), ReverseString("AAA"),1,25});
     _rules.push_back({"AAB", "BAA", ReverseString("AAA"), ReverseString("AAA")});
     _rules.push_back({"AAA", "AAB", ReverseString("BAA"), ReverseString("AAA")});
     _rules.push_back({"AAA", "AAA", ReverseString("AAB"), ReverseString("BAA")});
     _rules.push_back({"BAA", "AAA", ReverseString("AAA"), ReverseString("AAB")});
-    _rules.push_back({"BBB", "BBB", ReverseString("BBB"), ReverseString("BBB")});
-    _rules.push_back({"BBB", "BBB", ReverseString("BBB"), ReverseString("BBB")});
-    _rules.push_back({"BBB", "BBB", ReverseString("BBB"), ReverseString("BBB")});
+    _rules.push_back({"BBB", "BBB", ReverseString("BBB"), ReverseString("BBB"),1,25});
     _rules.push_back({"BAB", "BAB", ReverseString("BAB"), ReverseString("BAB")});
     _rules.push_back({"BAB", "BAA", ReverseString("AAA"), ReverseString("AAB")});
     _rules.push_back({"AAB", "BAB", ReverseString("BAA"), ReverseString("AAA")});
@@ -305,6 +295,7 @@ void WFC::writeToJson(const std::vector<Tile>& tiles, const std::string& filenam
         ruleObj["Right"] = it->second.right;
         ruleObj["Down"] = ReverseString(it->second.down);
         ruleObj["Left"] = ReverseString(it->second.left);
+        ruleObj["spritePos"] = it->second.image;
 
         j["EntropyList"][std::to_string(it->first)] = ruleObj; 
     }

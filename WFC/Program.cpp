@@ -43,13 +43,13 @@ void runPython(int seed)
 int main()
 {
     float time = 0;
-    int countMax = 1000;
+    int countMax = 1;
 
     for (int count = 1; count < countMax+1; count++) {
         // Start stopwatch
         auto start = std::chrono::high_resolution_clock::now();
 
-        WFC* wfc = new WFC(10,10,count); 
+        WFC* wfc = new WFC(100,100,count);
 
         // Stop stopwatch
         auto stop = std::chrono::high_resolution_clock::now();
