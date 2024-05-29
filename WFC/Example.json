@@ -3,32 +3,22 @@
     {
       "X": 0,
       "Y": 0,
-      "ID": 1,
-      "Var": 0
+      "EntropyCount": 0
     },
     {
       "X": 1,
       "Y": 0,
-      "ID": 1,
-      "Var": 0
+      "EntropyCount": 0
     },
     {
       "X": 0,
       "Y": 1,
-      "ID": 1,
-      "Var": 0
+      "EntropyCount": 0
     },
     {
       "X": 1,
       "Y": 1,
-      "ID": 1,
-      "Var": 0
-    }
-  ],
-  "Tile": [
-    {
-      "ID": 0,
-      "Exits": [ "AAA", "AAA", "AAA", "AAA" ]
+      "EntropyCount": 0
     }
   ]
 }

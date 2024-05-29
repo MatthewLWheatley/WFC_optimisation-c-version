@@ -1,9 +1,0 @@
-﻿  WFC.cpp
-C:\Users\Matty\UKIE JAMES JAM\WFC\WFC\WFC.cpp(200,65): warning C4267: 'argument': conversion from 'size_t' to '_Ty', possible loss of data
-          with
-          [
-              _Ty=int
-          ]
-C:\Users\Matty\UKIE JAMES JAM\WFC\WFC\WFC.cpp(224,46): warning C4267: '=': conversion from 'size_t' to 'int', possible loss of data
-C:\Users\Matty\UKIE JAMES JAM\WFC\WFC\WFC.cpp(244,25): warning C4267: 'initializing': conversion from 'size_t' to 'int', possible loss of data
-  WFC.vcxproj -> C:\Users\Matty\UKIE JAMES JAM\WFC\x64\Debug\WFC.exe

@@ -1,22 +1,71 @@
 #include "WFC.h"
 
-WFC::WFC(int _gridHeight, int _gridWidth)
+using namespace std::chrono;
+
+WFC::WFC(int _gridHeight, int _gridWidth, int _seed)
 {
+    seed = &_seed;
     width = _gridWidth;
     height = _gridHeight;
-    std::cout << "Init rules" << std::endl;
+    //std::cout << "Init rules" << std::endl;
     InitRules();
-    std::cout << "Init Grid" << std::endl;
+    //std::cout << "Init Grid" << std::endl;
     InitGrid();
     int count = 0;
+    int lastCount = 0;
     bool completed = false;
+
     while (!completed)
     {
+        (*seed)++;
         CollapseTile();
-        Propergate();
         count++;
-        if (count >= 5) return;
+
+        for (int x = 0; x < width; x++) 
+        {
+            for (int y = 0; y < height; y++) 
+            {
+                if (fullGridTile[std::make_pair(x, y)].collapsed) count++;
+            }
+        }
+
+        if (count > width*height) 
+        {
+            completed = true;
+        }
+        if (count == lastCount) 
+        {
+            if (lastHighest < count) failCount = 0;
+            lastHighest = count; 
+            failCount++;
+            std::cout << "failcount: " << failCount << std::endl;
+            for (int i = 0; i < failCount; i++)
+            {
+                auto tile = tileStack.top();
+                fullGridTile[tile].Reset();
+                tileStack.pop();
+            }
+            for (auto tile : fullGridTile) 
+            {
+                if (!fullGridTile[tile.first].collapsed)
+                {
+                    fullGridTile[tile.first].Reset();
+                }
+            }
+            lastCount = 0;
+        }
+
+        lastCount = count;
+        count = 0;
+
     }
+
+    //std::cout << "starting right" << std::endl;
+
+    std::vector<Tile> tiles;
+    for (auto tile : fullGridTile) tiles.push_back(tile.second);
+    std::string temp = "file.json";
+    writeToJson(tiles, temp);
 }
 
 WFC::~WFC()
@@ -26,86 +75,53 @@ WFC::~WFC()
 
 void WFC::InitRules()
 {
-	std::vector<std::string> _types = { "AAA","ABA","ACA"};
+    std::vector<std::string> _types = { "AAAA","ABBA","ACA", "ADA", "AEA", "AFA", "AGA"};
     std::vector<Rule> _rules;
-    //int id = 0;
-    /*for (const auto& rule1 : _ruleTypes) 
-    {
-        for (const auto& rule2 : _ruleTypes) 
-        {
-            for (const auto& rule3 : _ruleTypes) 
-            {
-                for (const auto& rule4 : _ruleTypes) 
-                {
-                    Rule rule = { rule1, rule2, rule3, rule4};
-                    entropyList[id++] = rule;
-                }
-            }
-        }
-    }
 
-    for (const auto& entropy : entropyList) {
-        entropyKeys.push_back(entropy.first);
-    }*/
-
-    Rule rule = { _types[0],_types[0],_types[1] ,_types[1] };
-    _rules.push_back(rule);
-    rule = { _types[0],_types[1],_types[1] ,_types[0] };
-    _rules.push_back(rule);
-    rule = { _types[1],_types[1],_types[0] ,_types[0] };
-    _rules.push_back(rule);
-    rule = { _types[1],_types[0],_types[0] ,_types[1] };
-    _rules.push_back(rule);
-    rule = { _types[0],_types[1],_types[1] ,_types[1] };
-    _rules.push_back(rule);
-    rule = { _types[1],_types[0],_types[1] ,_types[1] };
-    _rules.push_back(rule);
-    rule = { _types[1],_types[1],_types[0] ,_types[1] };
-    _rules.push_back(rule);
-    rule = { _types[1],_types[1],_types[1] ,_types[0] };
-    _rules.push_back(rule);
-
-    rule = { _types[0],_types[0],_types[2] ,_types[2] };
-    _rules.push_back(rule);
-    rule = { _types[0],_types[2],_types[2] ,_types[0] };
-    _rules.push_back(rule);
-    rule = { _types[2],_types[2],_types[0] ,_types[0] };
-    _rules.push_back(rule);
-    rule = { _types[2],_types[0],_types[0] ,_types[2] };
-    _rules.push_back(rule);
-    rule = { _types[0],_types[2],_types[2] ,_types[2] };
-    _rules.push_back(rule);
-    rule = { _types[2],_types[0],_types[2] ,_types[2] };
-    _rules.push_back(rule);
-    rule = { _types[2],_types[2],_types[0] ,_types[2] };
-    _rules.push_back(rule);
-    rule = { _types[2],_types[2],_types[2] ,_types[0] };
-    _rules.push_back(rule);
-
+    //_rules.push_back({ _types[0],_types[0],ReverseString(_types[1]) ,ReverseString(_types[1]) });
+    //_rules.push_back({ _types[0],_types[1],ReverseString(_types[1]) ,ReverseString(_types[0]) });
+    //_rules.push_back({ _types[1],_types[1],ReverseString(_types[0]) ,ReverseString(_types[0]) });
+    //_rules.push_back({ _types[1],_types[0],ReverseString(_types[0]) ,ReverseString(_types[1]) });
+    //_rules.push_back({ _types[0],_types[1],ReverseString(_types[1]) ,ReverseString(_types[1]) });
+    //_rules.push_back({ _types[1],_types[0],ReverseString(_types[1]) ,ReverseString(_types[1]) });
+    //_rules.push_back({ _types[1],_types[1],ReverseString(_types[0]) ,ReverseString(_types[1]) });
+    //_rules.push_back({ _types[1],_types[1],ReverseString(_types[1]) ,ReverseString(_types[0]) });
+    _rules.push_back({"BAA", "AAB", ReverseString("BBB"), ReverseString("BBB")});
+    _rules.push_back({"BBB", "BAA", ReverseString("AAB"), ReverseString("BBB")});
+    _rules.push_back({"BBB", "BBB", ReverseString("BAA"), ReverseString("AAB")});
+    _rules.push_back({"AAB", "BBB", ReverseString("BBB"), ReverseString("BAA")});
+    _rules.push_back({"AAA", "AAB", ReverseString("BBB"), ReverseString("BAA")});
+    _rules.push_back({"BAA", "AAA", ReverseString("AAB"), ReverseString("BBB")});
+    _rules.push_back({"BBB", "BAA", ReverseString("AAA"), ReverseString("AAB")});
+    _rules.push_back({"AAB", "BBB", ReverseString("BAA"), ReverseString("AAA")});
+    _rules.push_back({"AAA", "AAA", ReverseString("AAA"), ReverseString("AAA")});
+    _rules.push_back({"AAB", "BAA", ReverseString("AAA"), ReverseString("AAA")});
+    _rules.push_back({"AAA", "AAB", ReverseString("BAA"), ReverseString("AAA")});
+    _rules.push_back({"AAA", "AAA", ReverseString("AAB"), ReverseString("BAA")});
+    _rules.push_back({"BAA", "AAA", ReverseString("AAA"), ReverseString("AAB")});
+    _rules.push_back({"BBB", "BBB", ReverseString("BBB"), ReverseString("BBB")});
+    _rules.push_back({"BBB", "BBB", ReverseString("BBB"), ReverseString("BBB")});
+    _rules.push_back({"BBB", "BBB", ReverseString("BBB"), ReverseString("BBB")});
+    _rules.push_back({"BAB", "BAB", ReverseString("BAB"), ReverseString("BAB")});
+    _rules.push_back({"BAB", "BAA", ReverseString("AAA"), ReverseString("AAB")});
+    _rules.push_back({"AAB", "BAB", ReverseString("BAA"), ReverseString("AAA")});
+    _rules.push_back({"AAA", "AAB", ReverseString("BAB"), ReverseString("BAA")});
+    _rules.push_back({ "BAA", "AAA",ReverseString( "AAB"), ReverseString("BAB")});
+     
     for (int id = 0; id < _rules.size(); id++)
     {
         entropyList[id] = _rules[id];
     }
 
-    for (const auto& entropy : entropyList) 
+    for (const auto& entropy : entropyList)
     {
         entropyKeys.push_back(entropy.first);
     }
-
-    //// Print the contents of the BaseRules map
-    //for (const auto& pair : entropyList)
-    //{
-    //    std::cout << "ID: " << pair.first << ", Rule: "
-    //        << pair.second.up << " "
-    //        << pair.second.right << " "
-    //        << pair.second.down << " "
-    //        << pair.second.left << std::endl;
-    //}
 }
 
 void WFC::InitGrid() 
 {
-    surroundingTile = Tile(-1, -1, entropyKeys);
+    surroundingTile = Tile(-1, -1, entropyKeys, seed);
 
     if (WFCTYPE == 0) 
     {
@@ -113,25 +129,12 @@ void WFC::InitGrid()
         {
             for (int y = 0; y < height; y++)
             {
-                Tile _tile = Tile(x, y, entropyKeys);
+                Tile _tile = Tile(x, y, entropyKeys, seed);
                 _tile.entropyList = &entropyList;
                 fullGridTile[std::make_pair(x, y)] = _tile;
             }
         }
     }
-
-    //std::cout << fullGridTile.size() << std::endl;
-    //// Print out the created tiles
-    //for (const auto& tile : fullGridTile)
-    //{
-    //    auto _tile = tile.second;
-    //    std::cout << "Tile at (" << _tile.x << ", " << _tile.y << "), Entropy Keys: ";
-    //    for (int key : _tile.entropy)
-    //    {
-    //        std::cout << key << " ";
-    //    }
-    //    std::cout << std::endl;
-    //}
 
     for (auto& tile : fullGridTile)
     {
@@ -142,19 +145,11 @@ void WFC::InitGrid()
         {
             _tile.up = &neighborIt->second;
         }
-        else 
-        {
-            _tile.up = new Tile(-1, -1, entropyKeys); 
-        }
 
         neighborIt = fullGridTile.find(std::make_pair(_tile.x + 1, _tile.y));
         if (neighborIt != fullGridTile.end()) 
         {
             _tile.right = &neighborIt->second;
-        }
-        else 
-        {
-            _tile.right = new Tile(-1, -1, entropyKeys); 
         }
 
         neighborIt = fullGridTile.find(std::make_pair(_tile.x, _tile.y + 1));
@@ -162,111 +157,154 @@ void WFC::InitGrid()
         {
             _tile.down = &neighborIt->second;
         }
-        else 
-        {
-            _tile.down = new Tile(-1, -1, entropyKeys);
-        }
 
         neighborIt = fullGridTile.find(std::make_pair(_tile.x - 1, _tile.y));
         if (neighborIt != fullGridTile.end()) 
         {
             _tile.left = &neighborIt->second;
         }
-        else 
-        {
-            _tile.left = new Tile(-1, -1, entropyKeys);
-        }
     }
-
-    /*for (const auto& tile : fullGridTile) 
-    {
-        const auto& _tile = tile.second;
-        std::cout << "Tile at (" << _tile.x << ", " << _tile.y << "): " << std::endl;
-        std::cout << "Up: (" << _tile.up->x << ", " << _tile.up->y << ")" << std::endl;
-        std::cout << "Right: (" << _tile.right->x << ", " << _tile.right->y << ")" << std::endl;
-        std::cout << "Down: (" << _tile.down->x << ", " << _tile.down->y << ")" << std::endl;
-        std::cout << "Left: (" << _tile.left->x << ", " << _tile.left->y << ")" << std::endl;
-        std::cout << std::endl;
-    }*/
 }
 
-void WFC::CollapseTile() 
+void WFC::CollapseTile()
 {
-    //std::cout << GetLowEntropyList().size() << std::endl;
+
     std::vector<std::pair<int, int>> _list = GetLowestEntropyList();
     if (_list.size() <= 0) return;
     std::random_device rd;
-    std::mt19937 gen(rd());
-    std::uniform_int_distribution<> distribution(0, _list.size()-1);
+    std::mt19937 gen(*seed);
+    std::uniform_int_distribution<> distribution(0, _list.size() - 1);
     int rng = distribution(gen);
-    //std::cout << _list[rng].first << ", " << _list[rng].second << std::endl;
+
     fullGridTile[_list[rng]].CollapseTile();
-   /* std::cout << fullGridTile[_list[rng]].entropy.size() << std::endl;
-    std::cout << fullGridTile[_list[rng]].entropy[0] << std::endl;*/
+
+
+    tileStack.push(_list[rng]);
+
+    auto temp = _list[rng];
+    Propergate(_list[rng]);
 }
 
-void WFC::Propergate()
+void WFC::Propergate(std::pair<int,int> origin)
 {
-    auto _list = GetLowEntropyList();
-    fullGridTile[_list[0]].Propogate();
-}
 
-std::vector<std::pair<int, int>> WFC::GetLowestEntropyList() 
-{
-    std::vector<std::pair<int, int>> lowEntropyTiles;
-    int lowestEntropy = std::numeric_limits<int>::max();
+    std::queue<std::pair<int, int>> todo;
+    std::set<std::pair<int, int>> done;
 
-    for (const auto& tileEntry : fullGridTile) {
-        const Tile& tile = tileEntry.second;
-
-        // Check if entropy size is greater than 1 and lower than lowestEntropy
-        if (tile.entropy.size() > 1 && tile.entropy.size() < lowestEntropy) {
-            lowestEntropy = tile.entropy.size();
-
-            lowEntropyTiles.clear();
-            lowEntropyTiles.push_back(tileEntry.first);
+    auto checkAndAdd = [&](Tile* tile) {
+        if (tile != nullptr && tile->entropy.size() > 1 && done.find({ tile->x, tile->y }) == done.end()) 
+        {
+            todo.emplace(tile->x, tile->y);
         }
-        else if (tile.entropy.size() == lowestEntropy) {
-            lowEntropyTiles.push_back(tileEntry.first);
-        }
-    }
+    };
 
-    return lowEntropyTiles;
-}
+    // Initialize the queue with the neighbors of the origin
+    checkAndAdd(fullGridTile[origin].up);
+    checkAndAdd(fullGridTile[origin].right);
+    checkAndAdd(fullGridTile[origin].down);
+    checkAndAdd(fullGridTile[origin].left);
 
-std::vector<std::pair<int, int>> WFC::GetLowEntropyList()
-{
-    // Intermediate vector to hold tiles and their entropy sizes for sorting
-    std::vector<std::pair<std::pair<int, int>, int>> intermediateSortableTiles;
-
-    // Fill the intermediate vector with your data
-    for (const auto& tileEntry : fullGridTile) {
-        int entropySize = tileEntry.second.entropy.size();
-        if (entropySize > 1) {
-            intermediateSortableTiles.emplace_back(tileEntry.first, entropySize);
-        }
-    }
-
-    // Sort the intermediate vector based on entropy size
-    std::sort(intermediateSortableTiles.begin(), intermediateSortableTiles.end(),
-        [](const auto& a, const auto& b) {
-            return a.second < b.second; // Sort based on entropy size
-        });
-
-    
-    // Final vector to hold just the coordinates of the tiles, post-sort
-    std::vector<std::pair<int, int>> sortedTiles;
-
-    // Extract just the tile coordinates into the final vector
-    for (const auto& item : intermediateSortableTiles) {
-        sortedTiles.push_back(item.first); // `item.first` is the std::pair<int, int> part
-    }
-    /*for (const auto& tile : sortedTiles)
+    while (!todo.empty()) 
     {
-        std::cout << "Tile at (" << tile.first << ", " << tile.second
-            << ") has entropy size of " << fullGridTile[tile].entropy.size() << " "
-            << fullGridTile[tile].entropy[0] << std::endl;
-    }*/
-    // Now sortedTiles contains only the coordinates of the tiles, sorted by their entropy sizes
-    return sortedTiles;
+        const auto current = todo.front();
+        Tile* tile = &fullGridTile[current];
+        int startingEntropy = tile->entropy.size();
+        tile->Propagate();
+        done.emplace(current);
+        todo.pop();
+
+        // If entropy was reduced, check neighbors
+        if (startingEntropy > tile->entropy.size()) 
+        {
+            checkAndAdd(tile->up);
+            checkAndAdd(tile->right);
+            checkAndAdd(tile->down);
+            checkAndAdd(tile->left);
+        }
+    }
+}
+
+std::vector<std::pair<int, int>> WFC::GetLowestEntropyList() {
+    // Initialize an empty vector to store the positions of tiles with the lowest entropy
+    std::vector<std::pair<int, int>> lowestEntropyTiles;
+
+    // Set initial lowest entropy to the highest possible value
+    int minimumEntropy = std::numeric_limits<int>::max();
+
+    // Iterate through all tiles in the grid
+    for (const auto& tileEntry : fullGridTile) {
+        const Tile& currentTile = tileEntry.second; // Get the current tile
+
+        // Skip this iteration if the tile is already collapsed
+        if (currentTile.collapsed) {
+            continue;
+        }
+
+        // Get the entropy size of the current tile
+        int currentEntropy = currentTile.entropy.size();
+
+        // Check if the current tile's entropy is lower than the known minimum
+        if (currentEntropy < minimumEntropy) {
+            // Update the minimum entropy
+            minimumEntropy = currentEntropy;
+
+            // Since a new minimum entropy is found, clear the previous list
+            lowestEntropyTiles.clear();
+
+            // Add the current tile's position to the list
+            lowestEntropyTiles.push_back(tileEntry.first);
+        }
+        else if (currentEntropy == minimumEntropy) {
+            // If the current entropy matches the minimum, just add the position
+            lowestEntropyTiles.push_back(tileEntry.first);
+        }
+    }
+
+    // Return the list of positions with the lowest entropy
+    return lowestEntropyTiles;
+}
+
+std::string WFC::ReverseString(const std::string& str)
+{
+    return std::string(str.rbegin(), str.rend());
+}
+
+void WFC::writeToJson(const std::vector<Tile>& tiles, const std::string& filename)
+{
+    nlohmann::json j;
+    j["Grid"] = nlohmann::json::array();
+
+    for (const auto& tile : tiles)
+    {
+        nlohmann::json tileObj;
+
+        nlohmann::json entropyArray = nlohmann::json::array();
+        for (int value : tile.entropy)
+        {
+            entropyArray.push_back(value);
+        }
+        tileObj["Entropy"] = entropyArray; 
+
+        tileObj["EntropyCount"] = tile.entropy.size(); 
+
+        tileObj["X"] = tile.x;
+        tileObj["Y"] = tile.y;
+
+        j["Grid"].push_back(tileObj);
+    }
+
+    j["EntropyList"] = nlohmann::json::object(); 
+    for (auto it = entropyList.begin(); it != entropyList.end(); ++it)
+    {
+        nlohmann::json ruleObj;
+        ruleObj["Up"] = it->second.up;
+        ruleObj["Right"] = it->second.right;
+        ruleObj["Down"] = it->second.down;
+        ruleObj["Left"] = it->second.left;
+
+        j["EntropyList"][std::to_string(it->first)] = ruleObj; 
+    }
+
+    std::ofstream o(filename);
+    o << std::setw(4) << j << std::endl;
 }

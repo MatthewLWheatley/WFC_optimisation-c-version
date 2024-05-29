@@ -1,11 +1,8 @@
 #include "Tile.h"
 
-Tile::Tile() {
-    // Constructor implementation
-}
-
-Tile::~Tile() {
-    // Destructor implementation
+Tile::~Tile() 
+{
+    
 }
 
 void Tile::SetNeighbours(Tile* _up, Tile* _right, Tile* _down, Tile* _left) {
@@ -15,45 +12,58 @@ void Tile::SetNeighbours(Tile* _up, Tile* _right, Tile* _down, Tile* _left) {
     left = _left;
 }
 
-void Tile::CollapseTile()
+void Tile::CollapseTile() 
 {
-    std::random_device rd;
-    std::mt19937 gen(rd());
+    int _seed = *seed;
+    std::mt19937 gen(_seed);
     std::uniform_int_distribution<> distribution(0, entropy.size() - 1);
     int rng = distribution(gen);
-    int temp = entropy[rng];
+    int chosen_value = entropy[rng];
     entropy.clear();
-    entropy.push_back(rng);
+    entropy.push_back(chosen_value);
+    collapsed = true;
 }
 
-void Tile::Propogate()
+void Tile::Propagate() 
 {
-    std::vector<std::string> viableSockets;
+    std::vector<int> newEntropy(entropy);
 
-    // Assume up->entropy is filled correctly
-    if (up != nullptr) {
-        for (auto ent : up->entropy)
-        {
-            auto temp = (*entropyList)[ent];
-            if (std::find(viableSockets.begin(), viableSockets.end(), temp.down) == viableSockets.end())
-            {
-                viableSockets.push_back(temp.down);
+    auto filterRules = [this, &newEntropy](Tile* neighbor, auto getNeighborRule, auto getCurrentRule) {
+        if (neighbor == nullptr || entropyList == nullptr || neighbor->entropyList == nullptr) {
+            return;
+        }
+        std::vector<int> tempEntropy;
+        for (int key : newEntropy) {
+            Rule& currentRule = (*entropyList)[key];
+            bool isValid = false;
+            for (int neighborKey : neighbor->entropy) {
+                Rule& neighborRule = (*(neighbor->entropyList))[neighborKey];
+                if (getCurrentRule(currentRule) == getNeighborRule(neighborRule)) {
+                    isValid = true;
+                    break;
+                }
+            }
+            if (isValid) {
+                tempEntropy.push_back(key);
             }
         }
-    }
+        newEntropy = tempEntropy;
+        };
 
-    for (auto ent : viableSockets)
-    {
-        std::cout << ent << std::endl;
-    }
+    filterRules(up, [](const Rule& r) { return r.down; }, [](const Rule& r) { return r.up; });
+    filterRules(right, [](const Rule& r) { return r.left; }, [](const Rule& r) { return r.right; });
+    filterRules(down, [](const Rule& r) { return r.up; }, [](const Rule& r) { return r.down; });
+    filterRules(left, [](const Rule& r) { return r.right; }, [](const Rule& r) { return r.left; });
 
-    auto it = std::remove_if(entropy.begin(), entropy.end(), [this, &viableSockets](int id) {
-        auto temp2 = (*entropyList)[id].up;
-        return std::find(viableSockets.begin(), viableSockets.end(), temp2) == viableSockets.end();
-        });
+    entropy = newEntropy;
 }
 
-std::string ReverseString(const std::string& str) 
+void Tile::Reset()
 {
-    return std::string(str.rbegin(), str.rend());
+    collapsed = false;
+    entropy.clear();
+    for (auto key : entropyBackup) 
+    {
+        entropy.push_back(key);
+    }
 }

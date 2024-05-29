@@ -4,14 +4,20 @@
 #include <tuple>
 #include <map>
 #include <iostream>
-#include "Region.h"
 #include <random>
 #include <algorithm>
+#include "nlohman/json.hpp"
+#include <fstream>
+#include <chrono>
+#include "Tile.h"
+#include <unordered_set>
+#include <set>
+#include <queue>
 
 class WFC
 {
 public:
-	WFC(int _gridHeight, int _gridWidth);
+	WFC(int _gridHeight, int _gridWidth, int _seed);
 	WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth);
 	WFC(int _ySubSections, int _xSubSections, int _regionHeight, int _regionWidth, int variations);
 
@@ -21,16 +27,22 @@ public:
 	void InitGrid();
 	
 	void CollapseTile();
-	void Propergate();
+	void Propergate(std::pair<int, int> orgin);
 
 	std::vector<std::pair<int, int>> GetLowestEntropyList();
 	std::vector<std::pair<int, int>> GetLowEntropyList();
+	std::string ReverseString(const std::string& str);
+
+	void writeToJson(const std::vector<Tile>& tiles, const std::string& filename);
 private:
-	Region* currentRegion;
-	std::vector<std::vector<Region>> fullGrid;
+	int* seed = 0;
 	std::map<std::pair<int, int>, Tile> fullGridTile;
 	std::map<int, Rule> entropyList;
 	std::vector<int> entropyKeys;
+
+	std::stack<std::pair<int, int>> tileStack;
+	int failCount = 0;
+	int lastHighest = 0;
 
 	int height,width;
 	int regionHeight, regionWidth;
