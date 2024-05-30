@@ -18,13 +18,13 @@
 class WFC
 {
 public:
-	WFC(int _gridHeight, int _gridWidth, int _seed);
+	WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile = "Preset1.txt");
 	WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth);
 	WFC(int _ySubSections, int _xSubSections, int _regionHeight, int _regionWidth, int variations);
 
 	~WFC();
 
-	void InitRules();
+	void InitRules(std::string inputFile);
 	void InitGrid();
 	
 	void CollapseTile();
@@ -33,6 +33,9 @@ public:
 	std::vector<std::pair<int, int>> GetLowestEntropyList();
 	std::vector<std::pair<int, int>> GetLowEntropyList();
 	std::string ReverseString(const std::string& str);
+
+	std::vector<int> parseIntegerList(const std::string& str);
+	std::vector<Rule> readCSV(const std::string& filename);
 
 	void writeToJson(const std::vector<Tile>& tiles, const std::string& filename);
 private:

@@ -1,5 +1,6 @@
 #pragma once
 #include "string"
+#include "list"
 
 struct Rule
 {
@@ -7,7 +8,7 @@ struct Rule
 	std::string right;
 	std::string down;
 	std::string left;
-    int image = 1;
+    std::vector<int> spritePosition = {1};
     int weight = 1;
 };
 

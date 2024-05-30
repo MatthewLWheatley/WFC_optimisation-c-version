@@ -1,7 +1,6 @@
 #include "WFC.h"
 #include <iostream>
 #include <chrono>
-#include <Python.h>
 #include <windows.h>
 #include <cstdlib>
 #include <shlobj.h>
@@ -15,7 +14,7 @@ std::string getAppDataPath() {
     return std::string(path);
 }
 
-void runPython(int seed)
+void runPython(int seed,std::string filename)
 {
     std::string appDataPath = getAppDataPath();
     if (appDataPath.empty()) {
@@ -26,7 +25,7 @@ void runPython(int seed)
     std::string pythonPath = appDataPath + "\\Programs\\Python\\Python312\\python.exe";
 
     // Construct the command to run the Python script
-    std::string command = pythonPath + " image.py " + std::to_string(seed);
+    std::string command = pythonPath + " image.py " + std::to_string(seed) + " input/"+filename+".png";
 
     int result = system(command.c_str());  // Use "python" or "python3" depending on your Python installation
 
@@ -44,12 +43,15 @@ int main()
 {
     float time = 0;
     int countMax = 1;
+    int x = 100; int y = 100;
+    std::string filename = "Preset1";
+
 
     for (int count = 1; count < countMax+1; count++) {
         // Start stopwatch
         auto start = std::chrono::high_resolution_clock::now();
 
-        WFC* wfc = new WFC(100,100,count);
+        WFC* wfc = new WFC(x,y,count, filename+".txt");
 
         // Stop stopwatch
         auto stop = std::chrono::high_resolution_clock::now();
@@ -60,7 +62,7 @@ int main()
 
     std::cout << time << std::endl;
     for (int count = 1; count < countMax+1; count++) {
-        runPython(count);
+        runPython(count,filename);
     }
 
     std::string temp = "";

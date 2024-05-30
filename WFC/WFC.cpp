@@ -1,16 +1,21 @@
 #include "WFC.h"
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <vector>
+#include <string>
 
 using namespace std::chrono;
 
-WFC::WFC(int _gridHeight, int _gridWidth, int _seed)
+WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
 {
+    inputFile = "input/" + inputFile;
     std::string temp = "data\\Data" + std::to_string(_seed) + ".json";
     seed = &_seed;
     width = _gridWidth;
     height = _gridHeight;
     //std::cout << "Init rules" << std::endl;
-    //fullGridTile.reserve(width * height);
-    InitRules();
+    InitRules(inputFile);
     //std::cout << "Init Grid" << std::endl;
     InitGrid();
     int count = 0;
@@ -75,30 +80,10 @@ WFC::~WFC()
 
 }
 
-void WFC::InitRules()
+void WFC::InitRules(std::string inputFile)
 {
-    std::vector<std::string> _types = { "AAAA","ABBA","ACA", "ADA", "AEA", "AFA", "AGA"};
-    std::vector<Rule> _rules;
-
-    _rules.push_back({"BAA", "AAB", ReverseString("BBB"), ReverseString("BBB"),1,1});
-    _rules.push_back({"BBB", "BAA", ReverseString("AAB"), ReverseString("BBB")});
-    _rules.push_back({"BBB", "BBB", ReverseString("BAA"), ReverseString("AAB")});
-    _rules.push_back({"AAB", "BBB", ReverseString("BBB"), ReverseString("BAA")});
-    _rules.push_back({"AAA", "AAB", ReverseString("BBB"), ReverseString("BAA"),1,2});
-    _rules.push_back({"BAA", "AAA", ReverseString("AAB"), ReverseString("BBB"),1,2});
-    _rules.push_back({ "BBB", "BAA", ReverseString("AAA"), ReverseString("AAB"),1,2});
-    _rules.push_back({"AAB", "BBB", ReverseString("BAA"), ReverseString("AAA"),1,2});
-    _rules.push_back({"AAA", "AAA", ReverseString("AAA"), ReverseString("AAA"),1,25});
-    _rules.push_back({"AAB", "BAA", ReverseString("AAA"), ReverseString("AAA")});
-    _rules.push_back({"AAA", "AAB", ReverseString("BAA"), ReverseString("AAA")});
-    _rules.push_back({"AAA", "AAA", ReverseString("AAB"), ReverseString("BAA")});
-    _rules.push_back({"BAA", "AAA", ReverseString("AAA"), ReverseString("AAB")});
-    _rules.push_back({"BBB", "BBB", ReverseString("BBB"), ReverseString("BBB"),1,25});
-    _rules.push_back({"BAB", "BAB", ReverseString("BAB"), ReverseString("BAB")});
-    _rules.push_back({"BAB", "BAA", ReverseString("AAA"), ReverseString("AAB")});
-    _rules.push_back({"AAB", "BAB", ReverseString("BAA"), ReverseString("AAA")});
-    _rules.push_back({"AAA", "AAB", ReverseString("BAB"), ReverseString("BAA")});
-    _rules.push_back({ "BAA", "AAA",ReverseString( "AAB"), ReverseString("BAB")});
+    std::vector<std::string> _types = { "AAAA","ABBA","ACA", "ADA", "AEA", "AFA", "AGA" };
+    std::vector<Rule> _rules = readCSV(inputFile);
      
     for (int id = 0; id < _rules.size(); id++)
     {
@@ -111,10 +96,76 @@ void WFC::InitRules()
     }
 }
 
+std::vector<Rule> WFC::readCSV(const std::string& filename) {
+    std::ifstream file(filename);
+    std::string line;
+    std::getline(file, line); // Read the header line and ignore it
+    std::vector<Rule> _rules;
+
+    while (std::getline(file, line)) {
+        std::istringstream s(line);
+        std::string field;
+        Rule row;
+
+        // Read each field from the line
+        std::getline(s, row.up, ',');
+        std::getline(s, row.right, ',');
+        std::getline(s, row.down, ',');
+        std::getline(s, row.left, ',');
+
+        row.down = ReverseString(row.down);
+        row.left = ReverseString(row.left);
+
+        // Parse spritePosition
+        std::getline(s, field, '}');
+        row.spritePosition = parseIntegerList(field);
+
+        // Parse weight
+        std::getline(s, field);
+        field = field.substr(1, field.size()); // Remove the braces
+        row.weight = std::stoi(field);
+
+        //// Output for demonstration
+        //std::cout << "Up: " << row.up << ", Right: " << row.right << ", Down: " << row.down
+        //    << ", Left: " << row.left << ", Weight: " << row.weight << ", SpritePosition: ";
+        //for (int n : row.spritePosition) {
+        //    std::cout << n << " ";
+        //}
+        //std::cout << std::endl;
+
+        _rules.push_back(row);
+    }
+    
+    file.close();
+
+    return _rules;
+}
+
+std::vector<int> WFC::parseIntegerList(const std::string& str) {
+    std::vector<int> result;
+    std::stringstream ss(str.substr(1, str.size())); // Remove the braces
+    std::string item;
+    while (getline(ss, item, ',')) {
+        // Trim spaces from the item2
+        item.erase(remove(item.begin(), item.end(), ' '), item.end());
+
+        // Attempt to convert to integer and catch exceptions
+        try {
+            result.push_back(std::stoi(item));
+        }
+        catch (const std::invalid_argument& e) {
+            std::cerr << "Invalid argument: [" << item << "] cannot be converted to an integer." << std::endl;
+        }
+        catch (const std::out_of_range& e) {
+            std::cerr << "Out of range: [" << item << "] is too large to convert to an integer." << std::endl;
+        }
+    }
+    return result;
+}
+
+
 void WFC::InitGrid() 
 {
-    
-
     surroundingTile = Tile(-1, -1, entropyKeys, seed);
 
     if (WFCTYPE == 0) 
@@ -295,7 +346,7 @@ void WFC::writeToJson(const std::vector<Tile>& tiles, const std::string& filenam
         ruleObj["Right"] = it->second.right;
         ruleObj["Down"] = ReverseString(it->second.down);
         ruleObj["Left"] = ReverseString(it->second.left);
-        ruleObj["spritePos"] = it->second.image;
+        ruleObj["spritePos"] = it->second.spritePosition;
 
         j["EntropyList"][std::to_string(it->first)] = ruleObj; 
     }

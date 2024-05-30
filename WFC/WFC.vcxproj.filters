@@ -43,7 +43,6 @@
     <None Include="Example.json">
       <Filter>Resource Files</Filter>
     </None>
-    <None Include="packages.config" />
     <None Include="python312.dll">
       <Filter>Resource Files</Filter>
     </None>
