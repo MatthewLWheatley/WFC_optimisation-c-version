@@ -14,18 +14,18 @@ public:
     std::map<int, Rule>* entropyList = nullptr;
     std::vector<int> entropy;
     std::vector<int> entropyBackup;
-    Tile* up = nullptr;
-    Tile* right = nullptr;
-    Tile* down = nullptr;
-    Tile* left = nullptr;
-
+    std::shared_ptr<Tile> up = nullptr;
+    std::shared_ptr<Tile> right = nullptr;
+    std::shared_ptr<Tile> down = nullptr;
+    std::shared_ptr<Tile> left = nullptr;
+    
     Tile() = default;
     Tile(int _x, int _y, const std::vector<int>& keys, int* _seed) : x(_x), y(_y), entropy(keys),entropyBackup(keys), seed(_seed) {}
     ~Tile();  
 
     int* seed;
 
-    void SetNeighbours(Tile* _up, Tile* _right, Tile* _down, Tile* _left);
+    void SetNeighbours(std::shared_ptr<Tile> _up, std::shared_ptr<Tile> _right, std::shared_ptr<Tile> _down, std::shared_ptr<Tile> _left);
     void CollapseTile();
     void Propagate();
     void Reset();

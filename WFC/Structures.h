@@ -1,6 +1,21 @@
 #pragma once
 #include "string"
 #include "list"
+#include <fstream>
+#include <chrono>
+#include <unordered_set>
+#include <set>
+#include <queue>
+#include <vector>
+#include <stack>
+#include <utility>
+#include <tuple>
+#include <map>
+#include <iostream>
+#include <random>
+#include <algorithm>
+#include <unordered_map>
+#include "nlohman/json.hpp"
 
 struct Rule
 {

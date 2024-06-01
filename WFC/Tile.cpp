@@ -5,7 +5,7 @@ Tile::~Tile()
     
 }
 
-void Tile::SetNeighbours(Tile* _up, Tile* _right, Tile* _down, Tile* _left) {
+void Tile::SetNeighbours(std::shared_ptr<Tile> _up, std::shared_ptr<Tile> _right, std::shared_ptr<Tile> _down, std::shared_ptr<Tile> _left) {
     up = _up;
     right = _right;
     down = _down;
@@ -47,7 +47,7 @@ void Tile::Propagate()
 {
     std::vector<int> newEntropy(entropy);
 
-    auto filterRules = [this, &newEntropy](Tile* neighbor, auto getNeighborRule, auto getCurrentRule) {
+    auto filterRules = [this, &newEntropy](std::shared_ptr<Tile> neighbor, auto getNeighborRule, auto getCurrentRule) {
         if (neighbor == nullptr || entropyList == nullptr || neighbor->entropyList == nullptr) {
             return;
         }

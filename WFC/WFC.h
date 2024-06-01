@@ -1,25 +1,11 @@
-#include <vector>
-#include <stack>
-#include <utility>
-#include <tuple>
-#include <map>
-#include <iostream>
-#include <random>
-#include <algorithm>
-#include "nlohman/json.hpp"
-#include <fstream>
-#include <chrono>
-#include "Tile.h"
-#include <unordered_set>
-#include <set>
-#include <queue>
-#include <unordered_map>
+#include "Region.h"
 
 class WFC
 {
 public:
+	WFC() {};
 	WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile = "Preset1.txt");
-	WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth);
+	WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, int _seed, std::string inputFile = "Preset1.txt");
 	WFC(int _ySubSections, int _xSubSections, int _regionHeight, int _regionWidth, int variations);
 
 	~WFC();
@@ -31,16 +17,17 @@ public:
 	void Propergate(std::pair<int, int> orgin);
 
 	std::vector<std::pair<int, int>> GetLowestEntropyList();
-	std::vector<std::pair<int, int>> GetLowEntropyList();
 	std::string ReverseString(const std::string& str);
 
 	std::vector<int> parseIntegerList(const std::string& str);
 	std::vector<Rule> readCSV(const std::string& filename);
 
-	void writeToJson(const std::vector<Tile>& tiles, const std::string& filename);
+	void writeToJson(const std::vector<std::shared_ptr<Tile>>& tiles, const std::string& filename);
 private:
 	int* seed = 0;
-	std::unordered_map<std::pair<int, int>, Tile, pair_hash> fullGridTile;
+	std::unordered_map<std::pair<int, int>, std::shared_ptr<Tile>, pair_hash> Grid;
+	std::unordered_map<std::pair<int, int>, std::shared_ptr<Tile>, pair_hash> useableGrid;
+	std::unordered_map<std::pair<int, int>, Region, pair_hash> regionGrid;
 	std::map<int, Rule> entropyList;
 	std::vector<int> entropyKeys;
 
@@ -52,7 +39,4 @@ private:
 	int regionHeight, regionWidth;
 
 	int WFCTYPE = 0;
-
-	Tile surroundingTile;
-
 };

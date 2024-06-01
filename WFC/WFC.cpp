@@ -18,6 +18,7 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
     InitRules(inputFile);
     //std::cout << "Init Grid" << std::endl;
     InitGrid();
+    useableGrid = Grid;
     int count = 0;
     int lastCount = 0;
     bool completed = false;
@@ -32,7 +33,7 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
         {
             for (int y = 0; y < height; y++) 
             {
-                if (fullGridTile[std::make_pair(x, y)].collapsed) count++;
+                if ((Grid[std::make_pair(x, y)])->collapsed) count++;
             }
         }
 
@@ -49,16 +50,17 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
             for (int i = 0; i < failCount; i++)
             {
                 auto tile = tileStack.top();
-                fullGridTile[tile].Reset();
+                Grid[tile]->Reset();
                 tileStack.pop();
             }
-            for (auto tile : fullGridTile) 
+            for (auto tile : Grid) 
             {
-                if (!fullGridTile[tile.first].collapsed)
+                if (!Grid[tile.first]->collapsed)
                 {
-                    fullGridTile[tile.first].Reset();
+                    Grid[tile.first]->Reset();
                 }
             }
+            
             lastCount = 0;
         }
 
@@ -69,8 +71,100 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
 
     //std::cout << "starting right" << std::endl;
 
-    std::vector<Tile> tiles;
-    for (auto tile : fullGridTile) tiles.push_back(tile.second);
+    std::vector<std::shared_ptr<Tile>> tiles;
+    for (auto tile : Grid) tiles.push_back(tile.second);
+    //std::cout << "data\\Data" + std::to_string(_seed) + ".json" << std::endl;
+    writeToJson(tiles, temp);
+}
+
+WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, int _seed, std::string inputFile)
+{
+    WFCTYPE = 1;
+    inputFile = "input/" + inputFile;
+    std::string temp = "data\\Data" + std::to_string(_seed) + ".json";
+    seed = &_seed;
+    width = _gridWidth;
+    height = _gridHeight;
+    regionWidth = _regionWidth;
+    regionHeight = _regionHeight;
+    //std::cout << "Init rules" << std::endl;
+    InitRules(inputFile);
+    //std::cout << "Init Grid" << std::endl;
+    InitGrid();
+    for (auto& reg : regionGrid)
+    {
+        useableGrid = reg.second.Grid;
+        //reg.second.outputdata();
+
+        int count = 0;
+        int lastCount = -1;
+        bool completed = false;
+        for (int i = 0; i < tileStack.size(); i++)
+        {
+            tileStack.pop();
+        }
+        failCount = 0;
+
+        while (!completed)
+        {
+            (*seed)++;
+            CollapseTile();
+            count++;
+
+            for (int x = reg.second.startX; x < reg.second.startX+reg.second.width; x++)
+            {
+                for (int y = reg.second.startY; y < reg.second.startY+reg.second.height; y++)
+                {
+                    if (useableGrid[std::make_pair(x, y)]->collapsed) count++;
+                }
+            }
+
+            if (count > reg.second.width * reg.second.height)
+            {
+                completed = true;
+            }
+            if (count == lastCount)
+            {
+                if (lastHighest < count) failCount = 0;
+                lastHighest = count;
+                failCount++;
+                std::cout << "failcount: " << failCount << std::endl;
+                //std::cout << reg.second.startX << " " << reg.second.width << " " << reg.second.startY << " " << reg.second.height << " " << count << std::endl;
+                for (int i = 0; i < failCount; i++)
+                {
+                    if (tileStack.size() > 0)
+                    {
+                        auto tile = tileStack.top();
+                        useableGrid[tile]->Reset();
+                        tileStack.pop();
+                    }
+                    else failCount = 0;
+                }
+                for (auto tile : useableGrid)
+                {
+                    if (!useableGrid[tile.first]->collapsed)
+                    {
+                        useableGrid[tile.first]->Reset();
+                    }
+                }
+                for (auto tile : useableGrid)
+                {
+                    if (!useableGrid[tile.first]->collapsed)
+                    {
+                        useableGrid[tile.first]->Propagate();
+                    }
+                }
+            }
+
+            lastCount = count;
+            count = 0;
+        }
+    }
+    //std::cout << "starting right" << std::endl;
+
+
+    std::vector<std::shared_ptr<Tile>> tiles;
+    for (auto tile : Grid) tiles.push_back(tile.second);
     //std::cout << "data\\Data" + std::to_string(_seed) + ".json" << std::endl;
     writeToJson(tiles, temp);
 }
@@ -82,7 +176,6 @@ WFC::~WFC()
 
 void WFC::InitRules(std::string inputFile)
 {
-    std::vector<std::string> _types = { "AAAA","ABBA","ACA", "ADA", "AEA", "AFA", "AGA" };
     std::vector<Rule> _rules = readCSV(inputFile);
      
     for (int id = 0; id < _rules.size(); id++)
@@ -163,57 +256,84 @@ std::vector<int> WFC::parseIntegerList(const std::string& str) {
     return result;
 }
 
-
 void WFC::InitGrid() 
 {
-    surroundingTile = Tile(-1, -1, entropyKeys, seed);
-
-    if (WFCTYPE == 0) 
+    if (WFCTYPE == 0 || WFCTYPE == 1)
     {
         for (int x = 0; x < width; x++)
         {
             for (int y = 0; y < height; y++)
             {
-                Tile _tile = Tile(x, y, entropyKeys, seed);
-                _tile.entropyList = &entropyList;
-                fullGridTile[std::make_pair(x, y)] = _tile;
+                Grid[std::make_pair(x, y)] = std::make_shared<Tile>(x, y, entropyKeys, seed);
+                Grid[std::make_pair(x, y)]->entropyList = &entropyList;
+            }
+        }
+
+        for (auto& tile : Grid)
+        {
+            std::shared_ptr<Tile> _tile = tile.second;
+
+            auto neighborIt = Grid.find(std::make_pair(_tile->x, _tile->y - 1));
+            if (neighborIt != Grid.end())
+            {
+                _tile->up = neighborIt->second;
+            }
+
+            neighborIt = Grid.find(std::make_pair(_tile->x + 1, _tile->y));
+            if (neighborIt != Grid.end())
+            {
+                _tile->right = neighborIt->second;
+            }
+
+            neighborIt = Grid.find(std::make_pair(_tile->x, _tile->y + 1));
+            if (neighborIt != Grid.end())
+            {
+                _tile->down = neighborIt->second;
+            }
+
+            neighborIt = Grid.find(std::make_pair(_tile->x - 1, _tile->y));
+            if (neighborIt != Grid.end())
+            {
+                _tile->left = neighborIt->second;
             }
         }
     }
 
-    for (auto& tile : fullGridTile)
+    if (WFCTYPE == 1)
     {
-        auto& _tile = tile.second;
-
-        auto neighborIt = fullGridTile.find(std::make_pair(_tile.x, _tile.y - 1));
-        if (neighborIt != fullGridTile.end()) 
+        int xCount = 0;
+        int yCount = 0;
+        for (int y = 0; y < height; y += regionHeight)
         {
-            _tile.up = &neighborIt->second;
-        }
+            for (int x = 0; x < width; x += regionWidth)
+            {
+                int currentSubWidth = (x + regionWidth > width) ? (width - x) : regionWidth;
+                int currentSubHeight = (y + regionHeight > height) ? (height - y) : regionHeight;
 
-        neighborIt = fullGridTile.find(std::make_pair(_tile.x + 1, _tile.y));
-        if (neighborIt != fullGridTile.end()) 
-        {
-            _tile.right = &neighborIt->second;
-        }
+                std::unordered_map<std::pair<int, int>, std::shared_ptr<Tile>, pair_hash> grid;
+                for (int i = x; i < x + currentSubWidth; i++) {
+                    for (int k = y; k < y + currentSubHeight; k++) {
+                        // Simply copy the shared_ptr
+                        grid.emplace(std::make_pair(i, k), Grid[std::make_pair(i, k)]);
+                    }
+                }
 
-        neighborIt = fullGridTile.find(std::make_pair(_tile.x, _tile.y + 1));
-        if (neighborIt != fullGridTile.end()) 
-        {
-            _tile.down = &neighborIt->second;
-        }
+                // Directly construct the Region in the map
+                regionGrid.emplace(std::make_pair(xCount, yCount), Region(grid, currentSubWidth, currentSubHeight,x,y));
 
-        neighborIt = fullGridTile.find(std::make_pair(_tile.x - 1, _tile.y));
-        if (neighborIt != fullGridTile.end()) 
-        {
-            _tile.left = &neighborIt->second;
+                yCount++;
+            }
+            xCount++;
         }
+        /*for (auto& reg : regionGrid)
+        {
+            reg.second.outputdata();
+        }*/
     }
 }
 
 void WFC::CollapseTile()
 {
-
     std::vector<std::pair<int, int>> _list = GetLowestEntropyList();
     if (_list.size() <= 0) return;
     std::random_device rd;
@@ -221,12 +341,12 @@ void WFC::CollapseTile()
     std::uniform_int_distribution<> distribution(0, _list.size() - 1);
     int rng = distribution(gen);
 
-    fullGridTile[_list[rng]].CollapseTile();
-
+    useableGrid[_list[rng]]->CollapseTile();
 
     tileStack.push(_list[rng]);
 
     auto temp = _list[rng];
+    //std::cout << temp.first << " " << temp.second << std::endl;
     Propergate(_list[rng]);
 }
 
@@ -236,7 +356,7 @@ void WFC::Propergate(std::pair<int,int> origin)
     std::queue<std::pair<int, int>> todo;
     std::set<std::pair<int, int>> done;
 
-    auto checkAndAdd = [&](Tile* tile) {
+    auto checkAndAdd = [&](std::shared_ptr<Tile> tile) {
         if (tile != nullptr && tile->entropy.size() > 1 && done.find({ tile->x, tile->y }) == done.end()) 
         {
             todo.emplace(tile->x, tile->y);
@@ -244,15 +364,15 @@ void WFC::Propergate(std::pair<int,int> origin)
     };
 
     // Initialize the queue with the neighbors of the origin
-    checkAndAdd(fullGridTile[origin].up);
-    checkAndAdd(fullGridTile[origin].right);
-    checkAndAdd(fullGridTile[origin].down);
-    checkAndAdd(fullGridTile[origin].left);
+    checkAndAdd(Grid[origin]->up);
+    checkAndAdd(Grid[origin]->right);
+    checkAndAdd(Grid[origin]->down);
+    checkAndAdd(Grid[origin]->left);
 
     while (!todo.empty()) 
     {
         const auto current = todo.front();
-        Tile* tile = &fullGridTile[current];
+        std::shared_ptr<Tile> tile = Grid[current];
         int startingEntropy = tile->entropy.size();
         tile->Propagate();
         done.emplace(current);
@@ -277,16 +397,16 @@ std::vector<std::pair<int, int>> WFC::GetLowestEntropyList() {
     int minimumEntropy = std::numeric_limits<int>::max();
 
     // Iterate through all tiles in the grid
-    for (const auto& tileEntry : fullGridTile) {
-        const Tile& currentTile = tileEntry.second; // Get the current tile
+    for (const auto& tileEntry : useableGrid) {
+        std::shared_ptr<Tile> currentTile = tileEntry.second; // Get the current tile
 
         // Skip this iteration if the tile is already collapsed
-        if (currentTile.collapsed) {
+        if (currentTile->collapsed) {
             continue;
         }
 
         // Get the entropy size of the current tile
-        int currentEntropy = currentTile.entropy.size();
+        int currentEntropy = currentTile->entropy.size();
 
         // Check if the current tile's entropy is lower than the known minimum
         if (currentEntropy < minimumEntropy) {
@@ -314,7 +434,7 @@ std::string WFC::ReverseString(const std::string& str)
     return std::string(str.rbegin(), str.rend());
 }
 
-void WFC::writeToJson(const std::vector<Tile>& tiles, const std::string& filename)
+void WFC::writeToJson(const std::vector<std::shared_ptr<Tile>>& tiles, const std::string& filename)
 {
     nlohmann::json j;
     j["Grid"] = nlohmann::json::array();
@@ -324,16 +444,16 @@ void WFC::writeToJson(const std::vector<Tile>& tiles, const std::string& filenam
         nlohmann::json tileObj;
 
         nlohmann::json entropyArray = nlohmann::json::array();
-        for (int value : tile.entropy)
+        for (int value : tile->entropy)
         {
             entropyArray.push_back(value);
         }
         tileObj["Entropy"] = entropyArray; 
 
-        tileObj["EntropyCount"] = tile.entropy.size(); 
+        tileObj["EntropyCount"] = tile->entropy.size();
 
-        tileObj["X"] = tile.x;
-        tileObj["Y"] = tile.y;
+        tileObj["X"] = tile->x;
+        tileObj["Y"] = tile->y;
 
         j["Grid"].push_back(tileObj);
     }
