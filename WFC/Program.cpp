@@ -42,10 +42,9 @@ void runPython(int seed,std::string filename)
 int main()
 {
     float time = 0;
-    int countMax = 1;
+    int countMax = 10;
     int x = 100; int y = 100;
     std::string filename = "Preset1";
-
 
     for (int count = 1; count < countMax+1; count++) {
         // Start stopwatch
@@ -57,13 +56,18 @@ int main()
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
         time += duration.count();
-    }
 
+        delete(wfc);
+
+        
+    }
 
     std::cout << time << std::endl;
-    for (int count = 1; count < countMax+1; count++) {
+    std::cout << time/countMax << std::endl;
+
+    /*for (int count = 1; count < countMax+1; count++) {
         runPython(count,filename);
-    }
+    }*/
 
     std::string temp = "";
     std::cin >> temp;
