@@ -35,3 +35,4 @@ struct pair_hash {
         return hash1 ^ hash2;
     }
 };
+

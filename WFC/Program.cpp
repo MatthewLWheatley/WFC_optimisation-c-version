@@ -42,10 +42,10 @@ void runPython(int seed,std::string filename)
 int main()
 {
     float time = 0;
-    int countMax = 100;
-    int x = 10; int y = 10;
-    int w = 100; int h = 100;
-    int WFCTYPE = 0;
+    int countMax = 1;
+    int x = 1000; int y = 1000;
+    int w = 15; int h = 15;
+    int WFCTYPE = 1;
     std::string filename = "Preset1";
 
     for (int count = 1; count < countMax+1; count++) {
@@ -67,19 +67,21 @@ int main()
         auto stop = std::chrono::high_resolution_clock::now();
         auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
         time += duration.count();
-
+        std::cout << time << std::endl;
         delete(wfc);
     }
 
     std::cout << time << std::endl;
     std::cout << time/countMax << std::endl;
 
-    for (int count = 1; count < countMax+1; count++) {
+    for (int count = 1; count < countMax+1; count++) 
+    {
         runPython(count,filename);
     }
 
-    std::string temp = "";
-    std::cin >> temp;
+    std::cout << "Press Enter to Continue";
+    std::cin.ignore();
+    
 
     return 0;
 }

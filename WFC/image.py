@@ -152,4 +152,4 @@ if __name__ == "__main__":
     
     data_array = read_json(file_path)
     tiles = load_tilesheet(tilesheet_path, tile_size)
-    create_image(data_array, tiles, suffix, tile_size, 3)
+    create_image(data_array, tiles, suffix, tile_size, 1)
