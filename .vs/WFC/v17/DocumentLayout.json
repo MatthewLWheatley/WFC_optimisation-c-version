@@ -7,10 +7,6 @@
       "RelativeMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|solutionrelative:WFC\\Program.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|H:\\Coding\\WFC\\WFC\\WFC\\Tile.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
-      "RelativeMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|solutionrelative:WFC\\Tile.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
-    },
-    {
       "AbsoluteMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|H:\\Coding\\WFC\\WFC\\WFC\\WFC.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|solutionrelative:WFC\\WFC.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
@@ -23,14 +19,16 @@
       "RelativeMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|solutionrelative:WFC\\Structures.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
+      "AbsoluteMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|H:\\Coding\\WFC\\WFC\\WFC\\Tile.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|solutionrelative:WFC\\Tile.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    },
+    {
       "AbsoluteMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|H:\\Coding\\WFC\\WFC\\WFC\\Tile.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
       "RelativeMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|solutionrelative:WFC\\Tile.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|H:\\Coding\\visual studios comm\\VC\\Tools\\MSVC\\14.39.33519\\include\\xstring||{3B902123-F8A7-4915-9F01-361F908088D0}|"
-    },
-    {
-      "AbsoluteMoniker": "D:0:0:{A2FE74E1-B743-11D0-AE1A-00A0C90FFFC3}|\u003CMiscFiles\u003E|H:\\Coding\\visual studios comm\\VC\\Tools\\MSVC\\14.39.33519\\include\\string||{3B902123-F8A7-4915-9F01-361F908088D0}|"
+      "AbsoluteMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|H:\\Coding\\WFC\\WFC\\WFC\\Region.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{B2E91E4B-CC58-40CA-9B69-5DEE6D03F127}|WFC\\WFC.vcxproj|solutionrelative:WFC\\Region.h||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
     }
   ],
   "DocumentGroupContainers": [
@@ -50,7 +48,7 @@
               "RelativeDocumentMoniker": "WFC\\Program.cpp",
               "ToolTip": "H:\\Coding\\WFC\\WFC\\WFC\\Program.cpp",
               "RelativeToolTip": "WFC\\Program.cpp",
-              "ViewState": "AQIAAB8AAAAAAAAAAAAAwCsAAAATAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAC0AAAAbAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-05-30T02:02:03.297Z",
               "IsPinned": true,
@@ -58,13 +56,13 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 2,
+              "DocumentIndex": 1,
               "Title": "WFC.cpp",
               "DocumentMoniker": "H:\\Coding\\WFC\\WFC\\WFC\\WFC.cpp",
               "RelativeDocumentMoniker": "WFC\\WFC.cpp",
               "ToolTip": "H:\\Coding\\WFC\\WFC\\WFC\\WFC.cpp",
               "RelativeToolTip": "WFC\\WFC.cpp",
-              "ViewState": "AQIAAKEAAAAAAAAAAAAywGEBAAAeAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAH4BAAAkAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-03-28T23:42:28.318Z",
               "IsPinned": true,
@@ -72,26 +70,27 @@
             },
             {
               "$type": "Document",
-              "DocumentIndex": 3,
+              "DocumentIndex": 2,
               "Title": "WFC.h",
               "DocumentMoniker": "H:\\Coding\\WFC\\WFC\\WFC\\WFC.h",
               "RelativeDocumentMoniker": "WFC\\WFC.h",
               "ToolTip": "H:\\Coding\\WFC\\WFC\\WFC\\WFC.h",
               "RelativeToolTip": "WFC\\WFC.h",
-              "ViewState": "AQIAAAwAAAAAAAAAAAAMwBoAAAAlAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAABoAAAAPAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-03-29T00:02:44.808Z",
-              "IsPinned": true
+              "IsPinned": true,
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
+              "DocumentIndex": 4,
               "Title": "Tile.cpp",
               "DocumentMoniker": "H:\\Coding\\WFC\\WFC\\WFC\\Tile.cpp",
               "RelativeDocumentMoniker": "WFC\\Tile.cpp",
               "ToolTip": "H:\\Coding\\WFC\\WFC\\WFC\\Tile.cpp",
               "RelativeToolTip": "WFC\\Tile.cpp",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAACgAAAAUAAAA",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAAAAAARAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
               "WhenOpened": "2024-04-02T15:53:45.9Z",
               "IsPinned": true,
@@ -105,47 +104,38 @@
               "RelativeDocumentMoniker": "WFC\\Tile.h",
               "ToolTip": "H:\\Coding\\WFC\\WFC\\WFC\\Tile.h",
               "RelativeToolTip": "WFC\\Tile.h",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAQAAAASAAAA",
+              "ViewState": "AQIAAAMAAAAAAAAAAAAAABQAAAAAAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-04-01T14:44:52.713Z",
-              "IsPinned": true
+              "IsPinned": true,
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 4,
+              "DocumentIndex": 3,
               "Title": "Structures.h",
               "DocumentMoniker": "H:\\Coding\\WFC\\WFC\\WFC\\Structures.h",
               "RelativeDocumentMoniker": "WFC\\Structures.h",
               "ToolTip": "H:\\Coding\\WFC\\WFC\\WFC\\Structures.h",
               "RelativeToolTip": "WFC\\Structures.h",
-              "ViewState": "AQIAAAAAAAAAAAAAAAAAAAoAAAAjAAAA",
+              "ViewState": "AQIAAA8AAAAAAAAAAAAAACQAAAACAAAA",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
               "WhenOpened": "2024-04-01T14:26:26.703Z",
-              "IsPinned": true
+              "IsPinned": true,
+              "EditorCaption": ""
             },
             {
               "$type": "Document",
               "DocumentIndex": 6,
-              "Title": "xstring",
-              "DocumentMoniker": "H:\\Coding\\visual studios comm\\VC\\Tools\\MSVC\\14.39.33519\\include\\xstring",
-              "RelativeDocumentMoniker": "..\\..\\visual studios comm\\VC\\Tools\\MSVC\\14.39.33519\\include\\xstring",
-              "ToolTip": "H:\\Coding\\visual studios comm\\VC\\Tools\\MSVC\\14.39.33519\\include\\xstring",
-              "RelativeToolTip": "..\\..\\visual studios comm\\VC\\Tools\\MSVC\\14.39.33519\\include\\xstring",
-              "ViewState": "AQIAAM0IAAAAAAAAAAAQwOAIAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-05-30T02:43:04.988Z"
-            },
-            {
-              "$type": "Document",
-              "DocumentIndex": 7,
-              "Title": "string",
-              "DocumentMoniker": "H:\\Coding\\visual studios comm\\VC\\Tools\\MSVC\\14.39.33519\\include\\string",
-              "RelativeDocumentMoniker": "..\\..\\visual studios comm\\VC\\Tools\\MSVC\\14.39.33519\\include\\string",
-              "ToolTip": "H:\\Coding\\visual studios comm\\VC\\Tools\\MSVC\\14.39.33519\\include\\string",
-              "RelativeToolTip": "..\\..\\visual studios comm\\VC\\Tools\\MSVC\\14.39.33519\\include\\string",
-              "ViewState": "AQIAAEwAAAAAAAAAAAASwF0AAAAAAAAA",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2024-05-30T02:16:59.019Z"
+              "Title": "Region.h",
+              "DocumentMoniker": "H:\\Coding\\WFC\\WFC\\WFC\\Region.h",
+              "RelativeDocumentMoniker": "WFC\\Region.h",
+              "ToolTip": "H:\\Coding\\WFC\\WFC\\WFC\\Region.h",
+              "RelativeToolTip": "WFC\\Region.h",
+              "ViewState": "AQIAAAAAAAAAAAAAAAAAAA0AAABDAAAA",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000680|",
+              "WhenOpened": "2024-06-02T13:39:45.508Z",
+              "EditorCaption": ""
             }
           ]
         }

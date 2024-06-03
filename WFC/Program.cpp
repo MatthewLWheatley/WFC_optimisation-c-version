@@ -42,8 +42,8 @@ void runPython(int seed,std::string filename)
 int main()
 {
     float time = 0;
-    int countMax = 1;
-    int x = 100; int y = 100;
+    int countMax = 100;
+    int x = 10; int y = 10;
     int w = 100; int h = 100;
     int WFCTYPE = 0;
     std::string filename = "Preset1";

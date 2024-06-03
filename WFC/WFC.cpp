@@ -33,7 +33,7 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
         {
             for (int y = 0; y < height; y++) 
             {
-                if ((Grid[std::make_pair(x, y)])->collapsed) count++;
+                if (Grid[{x, y}]->collapsed) count++;
             }
         }
 
@@ -55,9 +55,9 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
             }
             for (auto tile : Grid) 
             {
-                if (!Grid[tile.first]->collapsed)
+                if (!Grid[(tile.first)]->collapsed)
                 {
-                    Grid[tile.first]->Reset();
+                    Grid[(tile.first)]->Reset();
                 }
             }
             
@@ -71,7 +71,7 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
 
     //std::cout << "starting right" << std::endl;
 
-    std::vector<std::shared_ptr<Tile>> tiles;
+    std::vector<Tile*> tiles;
     for (auto tile : Grid) tiles.push_back(tile.second);
     //std::cout << "data\\Data" + std::to_string(_seed) + ".json" << std::endl;
     writeToJson(tiles, temp);
@@ -113,9 +113,9 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
 
             for (int x = reg.second.startX; x < reg.second.startX+reg.second.width; x++)
             {
-                for (int y = reg.second.startY; y < reg.second.startY+reg.second.height; y++)
+                for (int y = reg.second.startY; y < reg.second.startY + reg.second.height; y++)
                 {
-                    if (useableGrid[std::make_pair(x, y)]->collapsed) count++;
+                    if (useableGrid[{x, y}]->collapsed) count++;
                 }
             }
 
@@ -163,7 +163,7 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
     //std::cout << "starting right" << std::endl;
 
 
-    std::vector<std::shared_ptr<Tile>> tiles;
+    std::vector<Tile*> tiles;
     for (auto tile : Grid) tiles.push_back(tile.second);
     //std::cout << "data\\Data" + std::to_string(_seed) + ".json" << std::endl;
     writeToJson(tiles, temp);
@@ -171,6 +171,22 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
 
 WFC::~WFC()
 {
+    
+    Grid.clear();
+    useableGrid.clear();
+    regionGrid.clear();
+    entropyList.clear();
+    entropyKeys.clear();
+    while (!tileStack.empty())
+    {
+        tileStack.pop();
+    }
+
+    {
+        std::unordered_map<std::pair<int, int>, Region, pair_hash>().swap(regionGrid);
+        std::map<int, Rule>().swap(entropyList);
+        std::vector<int>().swap(entropyKeys);
+    }
 
 }
 
@@ -264,36 +280,32 @@ void WFC::InitGrid()
         {
             for (int y = 0; y < height; y++)
             {
-                Grid[std::make_pair(x, y)] = std::make_shared<Tile>(x, y, entropyKeys, seed);
-                Grid[std::make_pair(x, y)]->entropyList = &entropyList;
+                Tile* tile = new Tile(x, y, entropyKeys, seed);
+                Grid[{x,y}] = tile;
+                Grid[{x, y}]->entropyList = &entropyList;
             }
         }
 
-        for (auto& tile : Grid)
-        {
-            std::shared_ptr<Tile> _tile = tile.second;
+        for (auto tile : Grid) {
+            Tile* _tile = tile.second;
 
-            auto neighborIt = Grid.find(std::make_pair(_tile->x, _tile->y - 1));
-            if (neighborIt != Grid.end())
-            {
+            auto neighborIt = Grid.find({ _tile->x, _tile->y - 1 });
+            if (neighborIt != Grid.end()) {
                 _tile->up = neighborIt->second;
             }
 
-            neighborIt = Grid.find(std::make_pair(_tile->x + 1, _tile->y));
-            if (neighborIt != Grid.end())
-            {
+            neighborIt = Grid.find({ _tile->x + 1, _tile->y });
+            if (neighborIt != Grid.end()) {
                 _tile->right = neighborIt->second;
             }
 
-            neighborIt = Grid.find(std::make_pair(_tile->x, _tile->y + 1));
-            if (neighborIt != Grid.end())
-            {
+            neighborIt = Grid.find({ _tile->x, _tile->y + 1 });
+            if (neighborIt != Grid.end()) {
                 _tile->down = neighborIt->second;
             }
 
-            neighborIt = Grid.find(std::make_pair(_tile->x - 1, _tile->y));
-            if (neighborIt != Grid.end())
-            {
+            neighborIt = Grid.find({ _tile->x - 1, _tile->y });
+            if (neighborIt != Grid.end()) {
                 _tile->left = neighborIt->second;
             }
         }
@@ -310,11 +322,12 @@ void WFC::InitGrid()
                 int currentSubWidth = (x + regionWidth > width) ? (width - x) : regionWidth;
                 int currentSubHeight = (y + regionHeight > height) ? (height - y) : regionHeight;
 
-                std::unordered_map<std::pair<int, int>, std::shared_ptr<Tile>, pair_hash> grid;
+                std::unordered_map<std::pair<int, int>, Tile*, pair_hash> grid;
+
                 for (int i = x; i < x + currentSubWidth; i++) {
                     for (int k = y; k < y + currentSubHeight; k++) {
                         // Simply copy the shared_ptr
-                        grid.emplace(std::make_pair(i, k), Grid[std::make_pair(i, k)]);
+                        grid[{i,k}] = Grid[{i, k}];
                     }
                 }
 
@@ -341,7 +354,7 @@ void WFC::CollapseTile()
     std::uniform_int_distribution<> distribution(0, _list.size() - 1);
     int rng = distribution(gen);
 
-    useableGrid[_list[rng]]->CollapseTile();
+    useableGrid[(_list[rng])]->CollapseTile();
 
     tileStack.push(_list[rng]);
 
@@ -356,7 +369,7 @@ void WFC::Propergate(std::pair<int,int> origin)
     std::queue<std::pair<int, int>> todo;
     std::set<std::pair<int, int>> done;
 
-    auto checkAndAdd = [&](std::shared_ptr<Tile> tile) {
+    auto checkAndAdd = [&](Tile* tile) {
         if (tile != nullptr && tile->entropy.size() > 1 && done.find({ tile->x, tile->y }) == done.end()) 
         {
             todo.emplace(tile->x, tile->y);
@@ -372,7 +385,7 @@ void WFC::Propergate(std::pair<int,int> origin)
     while (!todo.empty()) 
     {
         const auto current = todo.front();
-        std::shared_ptr<Tile> tile = Grid[current];
+        Tile* tile = Grid[current];
         int startingEntropy = tile->entropy.size();
         tile->Propagate();
         done.emplace(current);
@@ -398,7 +411,7 @@ std::vector<std::pair<int, int>> WFC::GetLowestEntropyList() {
 
     // Iterate through all tiles in the grid
     for (const auto& tileEntry : useableGrid) {
-        std::shared_ptr<Tile> currentTile = tileEntry.second; // Get the current tile
+        Tile* currentTile = tileEntry.second; // Get the current tile
 
         // Skip this iteration if the tile is already collapsed
         if (currentTile->collapsed) {
@@ -434,7 +447,7 @@ std::string WFC::ReverseString(const std::string& str)
     return std::string(str.rbegin(), str.rend());
 }
 
-void WFC::writeToJson(const std::vector<std::shared_ptr<Tile>>& tiles, const std::string& filename)
+void WFC::writeToJson(const std::vector<Tile*> tiles, const std::string& filename)
 {
     nlohmann::json j;
     j["Grid"] = nlohmann::json::array();

@@ -22,11 +22,11 @@ public:
 	std::vector<int> parseIntegerList(const std::string& str);
 	std::vector<Rule> readCSV(const std::string& filename);
 
-	void writeToJson(const std::vector<std::shared_ptr<Tile>>& tiles, const std::string& filename);
+	void writeToJson(const std::vector<Tile*> tiles, const std::string& filename);
 private:
 	int* seed = 0;
-	std::unordered_map<std::pair<int, int>, std::shared_ptr<Tile>, pair_hash> Grid;
-	std::unordered_map<std::pair<int, int>, std::shared_ptr<Tile>, pair_hash> useableGrid;
+	std::unordered_map<std::pair<int, int>, Tile*, pair_hash> Grid;
+	std::unordered_map<std::pair<int, int>, Tile*, pair_hash> useableGrid;
 	std::unordered_map<std::pair<int, int>, Region, pair_hash> regionGrid;
 	std::map<int, Rule> entropyList;
 	std::vector<int> entropyKeys;
