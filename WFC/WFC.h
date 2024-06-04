@@ -17,6 +17,7 @@ public:
 	void Propergate(std::pair<int, int> orgin);
 
 	std::vector<std::pair<int, int>> GetLowestEntropyList();
+	std::vector<std::pair<int, int>> GetLowestRegionEntropyList();
 	std::string ReverseString(const std::string& str);
 
 	std::vector<int> parseIntegerList(const std::string& str);
@@ -27,7 +28,7 @@ private:
 	int* seed = 0;
 	std::unordered_map<std::pair<int, int>, Tile*, pair_hash> Grid;
 	std::unordered_map<std::pair<int, int>, Tile*, pair_hash> useableGrid;
-	std::unordered_map<std::pair<int, int>, Region, pair_hash> regionGrid;
+	std::unordered_map<std::pair<int, int>, Region*, pair_hash> regionGrid;
 	std::map<int, Rule> entropyList;
 	std::vector<int> entropyKeys;
 
@@ -37,6 +38,8 @@ private:
 
 	int height,width;
 	int regionHeight, regionWidth;
+
+	std::pair<int, int> currentRegion = {INT_MAX,INT_MAX };
 
 	int WFCTYPE = 0;
 };

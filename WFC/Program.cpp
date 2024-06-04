@@ -43,12 +43,13 @@ int main()
 {
     float time = 0;
     int countMax = 1;
-    int x = 1000; int y = 1000;
-    int w = 15; int h = 15;
-    int WFCTYPE = 1;
+    int x = 100; int y = 100;
+    int w = 50; int h = 50;
+    int WFCTYPE = 0;
     std::string filename = "Preset1";
 
-    for (int count = 1; count < countMax+1; count++) {
+    for (int count = 1; count < countMax+1; count++) 
+    {
         // Start stopwatch
         WFC* wfc;
         auto start = std::chrono::high_resolution_clock::now();

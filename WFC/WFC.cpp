@@ -91,9 +91,32 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
     InitRules(inputFile);
     //std::cout << "Init Grid" << std::endl;
     InitGrid();
-    for (auto& reg : regionGrid)
+
+    bool regionsCompleted = false;
+
+    while(!regionsCompleted)
     {
-        useableGrid = reg.second.Grid;
+        /*for (auto reg : regionGrid)
+        {
+            std::cout << reg.first.first << ", " << reg.first.second << " " << reg.second->GetEntropy() << std::endl;
+        }*/
+        auto _list = GetLowestRegionEntropyList();
+        if (_list.size() <= 0)
+        {
+            regionsCompleted = true;
+            continue;
+        }
+        std::random_device rd;
+        std::mt19937 gen(*seed);
+        std::uniform_int_distribution<> distribution(0, _list.size() - 1);
+        int rng = distribution(gen);
+        currentRegion = _list[rng];
+        /*
+        std::cout << std::endl;
+        std::cout << currentRegion.first << ", " << currentRegion.second << " " << regionGrid[currentRegion]->GetEntropy() << std::endl;
+        std::cout << std::endl;*/
+
+        useableGrid = regionGrid[_list[rng]]->Grid;
         //reg.second.outputdata();
 
         int count = 0;
@@ -111,15 +134,15 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
             CollapseTile();
             count++;
 
-            for (int x = reg.second.startX; x < reg.second.startX+reg.second.width; x++)
+            for (int x = regionGrid[currentRegion]->startX; x < regionGrid[currentRegion]->startX+ regionGrid[currentRegion]->width; x++)
             {
-                for (int y = reg.second.startY; y < reg.second.startY + reg.second.height; y++)
+                for (int y = regionGrid[currentRegion]->startY; y < regionGrid[currentRegion]->startY + regionGrid[currentRegion]->height; y++)
                 {
                     if (useableGrid[{x, y}]->collapsed) count++;
                 }
             }
 
-            if (count > reg.second.width * reg.second.height)
+            if (count > regionGrid[currentRegion]->width * regionGrid[currentRegion]->height)
             {
                 completed = true;
             }
@@ -159,6 +182,8 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
             lastCount = count;
             count = 0;
         }
+
+        regionGrid[currentRegion]->completed = true;
     }
     //std::cout << "starting right" << std::endl;
 
@@ -171,7 +196,15 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
 
 WFC::~WFC()
 {
-    
+
+    for (auto reg : regionGrid)
+    {
+        delete(reg.second);
+    }
+    for (auto reg : Grid)
+    {
+        delete(reg.second);
+    }
     Grid.clear();
     useableGrid.clear();
     regionGrid.clear();
@@ -180,12 +213,6 @@ WFC::~WFC()
     while (!tileStack.empty())
     {
         tileStack.pop();
-    }
-
-    {
-        std::unordered_map<std::pair<int, int>, Region, pair_hash>().swap(regionGrid);
-        std::map<int, Rule>().swap(entropyList);
-        std::vector<int>().swap(entropyKeys);
     }
 
 }
@@ -233,7 +260,7 @@ std::vector<Rule> WFC::readCSV(const std::string& filename) {
         std::getline(s, field);
         field = field.substr(1, field.size()); // Remove the braces
         row.weight = std::stoi(field);
-
+        
         //// Output for demonstration
         //std::cout << "Up: " << row.up << ", Right: " << row.right << ", Down: " << row.down
         //    << ", Left: " << row.left << ", Weight: " << row.weight << ", SpritePosition: ";
@@ -241,7 +268,7 @@ std::vector<Rule> WFC::readCSV(const std::string& filename) {
         //    std::cout << n << " ";
         //}
         //std::cout << std::endl;
-
+        if (row.weight != 0)
         _rules.push_back(row);
     }
     
@@ -331,13 +358,23 @@ void WFC::InitGrid()
                     }
                 }
 
+                Region* reg = new Region(grid, currentSubWidth, currentSubHeight, x, y);
                 // Directly construct the Region in the map
-                regionGrid.emplace(std::make_pair(xCount, yCount), Region(grid, currentSubWidth, currentSubHeight,x,y));
+                regionGrid.emplace(std::make_pair(xCount, yCount), reg);
 
                 yCount++;
             }
             xCount++;
+            yCount = 0;
         }
+
+        for (auto& reg : regionGrid) 
+        {
+            reg.second->GetEntropy();
+        }
+
+
+
         /*for (auto& reg : regionGrid)
         {
             reg.second.outputdata();
@@ -348,6 +385,12 @@ void WFC::InitGrid()
 void WFC::CollapseTile()
 {
     std::vector<std::pair<int, int>> _list = GetLowestEntropyList();
+
+    /*for (auto lit : _list) 
+    {
+        std::cout << lit.first << ", " << lit.second << std::endl;
+    }*/
+
     if (_list.size() <= 0) return;
     std::random_device rd;
     std::mt19937 gen(*seed);
@@ -390,10 +433,11 @@ void WFC::Propergate(std::pair<int,int> origin)
         tile->Propagate();
         done.emplace(current);
         todo.pop();
-
+        if(currentRegion.first != INT_MAX)regionGrid[currentRegion]->entropy -= startingEntropy - tile->entropy.size();
         // If entropy was reduced, check neighbors
         if (startingEntropy > tile->entropy.size()) 
         {
+            //if (currentRegion.first != INT_MAX) regionGrid[currentRegion].entropy -= startingEntropy - tile->entropy.size();
             checkAndAdd(tile->up);
             checkAndAdd(tile->right);
             checkAndAdd(tile->down);
@@ -420,6 +464,46 @@ std::vector<std::pair<int, int>> WFC::GetLowestEntropyList() {
 
         // Get the entropy size of the current tile
         int currentEntropy = currentTile->entropy.size();
+
+        // Check if the current tile's entropy is lower than the known minimum
+        if (currentEntropy < minimumEntropy) {
+            // Update the minimum entropy
+            minimumEntropy = currentEntropy;
+
+            // Since a new minimum entropy is found, clear the previous list
+            lowestEntropyTiles.clear();
+
+            // Add the current tile's position to the list
+            lowestEntropyTiles.push_back(tileEntry.first);
+        }
+        else if (currentEntropy == minimumEntropy) {
+            // If the current entropy matches the minimum, just add the position
+            lowestEntropyTiles.push_back(tileEntry.first);
+        }
+    }
+
+    // Return the list of positions with the lowest entropy
+    return lowestEntropyTiles;
+}
+
+std::vector<std::pair<int, int>> WFC::GetLowestRegionEntropyList() {
+    // Initialize an empty vector to store the positions of tiles with the lowest entropy
+    std::vector<std::pair<int, int>> lowestEntropyTiles;
+
+    // Set initial lowest entropy to the highest possible value
+    int minimumEntropy = std::numeric_limits<int>::max();
+
+    // Iterate through all tiles in the grid
+    for (const auto& tileEntry : regionGrid) {
+        Region* currentTile = tileEntry.second; // Get the current tile
+
+        // Skip this iteration if the tile is already collapsed
+        if (currentTile->completed) {
+            continue;
+        }
+
+        // Get the entropy size of the current tile
+        int currentEntropy = currentTile->entropy;
 
         // Check if the current tile's entropy is lower than the known minimum
         if (currentEntropy < minimumEntropy) {

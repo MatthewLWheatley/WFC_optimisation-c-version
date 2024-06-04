@@ -17,4 +17,20 @@ public:
     int height;
     int startX;
     int startY;
+
+    bool completed = false;
+
+    int entropy = 0;
+
+    int GetEntropy() 
+    {
+        int count = 0;
+
+        for (auto tile : Grid) 
+        {
+            count += tile.second->entropy.size();
+        }
+        entropy = count;
+        return count;
+    }
 };
