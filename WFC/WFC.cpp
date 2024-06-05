@@ -7,7 +7,7 @@
 
 using namespace std::chrono;
 
-WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
+WFC::WFC(int _gridWidth, int _gridHeight, int _seed, std::string inputFile)
 {
     inputFile = "input/" + inputFile;
     std::string temp = "data\\Data" + std::to_string(_seed) + ".json";
@@ -78,7 +78,7 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
     writeToJson(tiles, temp);
 }
 
-WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, int _seed, std::string inputFile,bool nested)
+WFC::WFC(int _gridWidth, int _gridHeight, int _regionWidth, int _regionHeight, int _seed, std::string inputFile,bool nested)
 {
     WFCTYPE = 1;
     inputFile = "input/" + inputFile;
@@ -195,6 +195,121 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
         for (auto tile : Grid) tiles.push_back(tile.second);
         temp = "data\\Data" + std::to_string(cunt) + ".json";
         writeToJson(tiles, temp);
+        temp = "data\\Data1.json";
+        cunt++;*/
+    }
+
+    std::vector<Tile*> tiles;
+    for (auto tile : Grid) tiles.push_back(tile.second);
+    //std::cout << "data\\Data" + std::to_string(_seed) + ".json" << std::endl;
+    writeToJson(tiles, temp);
+}
+
+WFC::WFC(int _gridWidth, int _gridHeight, int _regionWidth, int _regionHeight, int _stichedSize, int _seed, std::string inputFile)
+{
+    WFCTYPE = 2;
+    inputFile = "input/" + inputFile;
+    std::string temp = "data\\Data" + std::to_string(_seed) + ".json";
+    seed = &_seed;
+    width = _gridWidth;
+    height = _gridHeight;
+    regionWidth = _regionWidth;
+    regionHeight = _regionHeight;
+    stichSize = _stichedSize;
+    
+    //std::cout << "Init rules" << std::endl;
+    InitRules(inputFile);
+    //std::cout << "Init Grid" << std::endl;
+    InitGrid();
+
+    bool regionsCompleted = false;
+    int RegionCount = -1;
+    int cunt = 2;
+    while (!regionsCompleted)
+    {
+        RegionCount++;
+        
+        if (RegionCount >= regionsList.size()) 
+        {
+            regionsCompleted = true;
+            continue;
+        }
+
+        currentRegion = regionsList[RegionCount];
+
+        useableGrid = regionGrid[currentRegion]->Grid;
+
+        int count = 0;
+        int lastCount = -1;
+        bool completed = false;
+        for (int i = 0; i < tileStack.size(); i++)
+        {
+            tileStack.pop();
+        }
+        failCount = 0;
+
+        while (!completed)
+        {
+            (*seed)++;
+            CollapseTile();
+            count++;
+
+            for (int x = regionGrid[currentRegion]->startX; x < regionGrid[currentRegion]->startX + regionGrid[currentRegion]->width; x++)
+            {
+                for (int y = regionGrid[currentRegion]->startY; y < regionGrid[currentRegion]->startY + regionGrid[currentRegion]->height; y++)
+                {
+                    if (useableGrid[{x, y}]->collapsed) count++;
+                }
+            }
+            if (count > regionGrid[currentRegion]->width * regionGrid[currentRegion]->height)
+            {
+                completed = true;
+            }
+            if (count == lastCount)
+            {
+                if (lastHighest < count) failCount = 0;
+                lastHighest = count;
+                failCount++;
+                std::cout << "failcount: " << failCount << std::endl;
+                //std::cout << reg.second.startX << " " << reg.second.width << " " << reg.second.startY << " " << reg.second.height << " " << count << std::endl;
+                for (int i = 0; i < failCount; i++)
+                {
+                    if (tileStack.size() > 0)
+                    {
+                        auto tile = tileStack.top();
+                        useableGrid[tile]->Reset();
+                        tileStack.pop();
+                    }
+                    else failCount = 0;
+                }
+                for (auto tile : useableGrid)
+                {
+                    if (!useableGrid[tile.first]->collapsed)
+                    {
+                        useableGrid[tile.first]->Reset();
+                    }
+                }
+                for (auto tile : useableGrid)
+                {
+                    if (!useableGrid[tile.first]->collapsed)
+                    {
+                        useableGrid[tile.first]->Propagate();
+                    }
+                }
+            }
+
+            lastCount = count;
+            count = 0;
+        }
+
+        regionGrid[currentRegion]->completed = true;
+
+
+        /*std::vector<Tile*> tiles;
+        for (auto tile : Grid) tiles.push_back(tile.second);
+        temp = "data\\Data" + std::to_string(cunt) + ".json";
+        writeToJson(tiles, temp);
+        temp = "data\\Data1.json";
         cunt++;*/
     }
 
@@ -370,9 +485,14 @@ std::vector<int> WFC::parseIntegerList(const std::string& str) {
     return result;
 }
 
+struct RegionTemp {
+    int startX, startY;
+    int width, height;
+};
+
 void WFC::InitGrid() 
 {
-    if (WFCTYPE == 0 || WFCTYPE == 1)
+    if (WFCTYPE == 0 || WFCTYPE == 1 || WFCTYPE == 2)
     {
         for (int x = 0; x < width; x++)
         {
@@ -407,6 +527,7 @@ void WFC::InitGrid()
             }
         }
     }
+
     if (WFCTYPE == 1)
     {
         int xCount = 0;
@@ -446,6 +567,105 @@ void WFC::InitGrid()
         {
             reg.second->GetEntropy();
         }
+    }
+
+    if (WFCTYPE == 2) 
+    {
+        std::vector<RegionTemp> regions;
+        int currentY = 0;
+        
+        int gH = height; int gW = width;
+        int rH = regionHeight; int rW = regionHeight;
+        int sS = stichSize;
+        
+        for (int y = 0; y < gH; y += rH + sS) {
+            for (int x = 0; x < gW; x += rW + sS) {
+                RegionTemp region;
+                region.startX = x;
+                region.startY = y;
+
+                // Adjust width and height if region exceeds grid boundaries
+                region.width = (x + rW > gW) ? gW - x : rW;
+                region.height = (y + rH > gH) ? gH - y : rH;
+
+                regions.push_back(region);
+            }
+        }
+
+        for (int y = rH; y < gH; y += rH + sS)
+        {
+            for (int x = rW; x < gW; x += rW + sS)
+            {
+                RegionTemp region;
+                region.startX = x;
+                region.startY = y;
+                region.width = sS;
+                region.height = sS;
+                regions.push_back(region);
+            }
+        }
+
+        for (int y = 0; y < gH; y += rH + sS) 
+        {
+            for (int x = 0; x < gW; x += rW + sS) 
+            {
+                if (x + rW < gW) 
+                {
+                    RegionTemp region;
+                    region.startX = x + rW;
+                    region.startY = y;
+                    region.width = sS;
+                    region.height = (y + rH > gH) ? gH - y : rH;
+                    regions.push_back(region);
+                }
+            }
+        }
+
+        for (int y = 0; y < gH; y += rH + sS) 
+        {
+            for (int x = 0; x < gW; x += rW + sS) 
+            {
+                if (y + rH < gH) 
+                {
+                    RegionTemp region;
+                    region.startX = x;
+                    region.startY = y + rH;
+                    region.width = (x + rW > gW) ? gW - x : rW;
+                    region.height = sS;
+                    regions.push_back(region);
+                }
+            }
+        }
+
+
+        for (auto reg : regions)
+        {
+            //std::cout << reg.startX << ", " << reg.startY << std::endl;
+        
+            int currentSubWidth = reg.width;
+            int currentSubHeight = reg.height;
+            int x = reg.startX;
+            int y = reg.startY;
+            std::unordered_map<std::pair<int, int>, Tile*, pair_hash> grid;
+
+            for (int i = x; i < x + currentSubWidth; i++) {
+                for (int k = y; k < y + currentSubHeight; k++) {
+                    grid[{i, k}] = Grid[{i, k}];
+                }
+            }
+
+            Region* reg = new Region(grid, currentSubWidth, currentSubHeight, x, y);
+            // Directly construct the Region in the map
+            for (int i = x; i < x + currentSubWidth; i++) {
+                for (int k = y; k < y + currentSubHeight; k++) {
+                    // Simply copy the shared_ptr
+                    Grid[{i, k}]->region = reg;
+                }
+            }
+            regionsList.push_back({ x,y });
+            regionGrid.emplace(std::make_pair(x, y), reg);
+        }
+
     }
 }
 
