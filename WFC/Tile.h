@@ -7,11 +7,14 @@
 #include <algorithm>
 #include <bitset>
 
+class Region;
+
 class Tile {
 public:
     int x, y;
     bool collapsed = false;
     std::map<int, Rule>* entropyList = nullptr;
+    std::map<int, Neighbours>* neighbourRules = nullptr;
     std::vector<int> entropy;
     std::vector<int> entropyBackup;
     Tile* up = nullptr;
@@ -29,13 +32,15 @@ public:
 
     void SetNeighbours(Tile* _up, Tile* _right, Tile* _down, Tile* _left);
     void CollapseTile();
+    std::vector<int> filterRules(Tile* other, const std::vector<int>& thisEntropy, const std::function<const std::vector<int>& (const Neighbours&)>& getAllowedTiles);
     void Propagate();
     void Reset();
 
-
+    Region *region;
 private:
 
 };
+
 //
 //class TileGrid
 //{

@@ -19,12 +19,20 @@
 
 struct Rule
 {
-	std::string up;
-	std::string right;
-	std::string down;
-	std::string left;
-    std::vector<int> spritePosition = {1};
+    std::string up;
+    std::string right;
+    std::string down;
+    std::string left;
+    std::vector<int> spritePosition = { 1 };
     int weight = 1;
+};
+
+struct Neighbours
+{
+    std::vector<int> up;
+    std::vector<int> right;
+    std::vector<int> down;
+    std::vector<int> left;
 };
 
 struct pair_hash {

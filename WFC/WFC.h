@@ -10,7 +10,10 @@ public:
 
 	~WFC();
 
+	void printNeighbours(const std::map<int, Neighbours>& neighbourRules);
+
 	void InitRules(std::string inputFile);
+	std::map<int, Neighbours> findNeighbours(const std::map<int, Rule>& entropyList);
 	void InitGrid();
 	
 	void CollapseTile();
@@ -25,11 +28,12 @@ public:
 
 	void writeToJson(const std::vector<Tile*> tiles, const std::string& filename);
 private:
-	int* seed = 0;
-	std::unordered_map<std::pair<int, int>, Tile*, pair_hash> Grid;
-	std::unordered_map<std::pair<int, int>, Tile*, pair_hash> useableGrid;
-	std::unordered_map<std::pair<int, int>, Region*, pair_hash> regionGrid;
+	int *seed = 0;
+	std::map<std::pair<int, int>, Tile*> Grid;
+	std::map<std::pair<int, int>, Tile*> useableGrid;
+	std::map<std::pair<int, int>, Region*> regionGrid;
 	std::map<int, Rule> entropyList;
+	std::map<int, Neighbours> neighbourRules;
 	std::vector<int> entropyKeys;
 
 	std::stack<std::pair<int, int>> tileStack;

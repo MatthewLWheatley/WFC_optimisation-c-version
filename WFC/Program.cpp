@@ -1,9 +1,13 @@
 #include "WFC.h"
-#include <iostream>
 #include <chrono>
 #include <windows.h>
 #include <cstdlib>
 #include <shlobj.h>
+#include <iostream>
+#include <limits>
+#include <string>
+#include <conio.h> // for _getch() on Windows
+#include <omp.h>
 
 std::string getAppDataPath() {
     char path[MAX_PATH];
@@ -39,50 +43,57 @@ void runPython(int seed,std::string filename)
     return;
 }
 
-int main()
-{
-    float time = 0;
-    int countMax = 1;
-    int x = 100; int y = 100;
-    int w = 50; int h = 50;
-    int WFCTYPE = 0;
-    std::string filename = "Preset1";
+int main() {
 
-    for (int count = 1; count < countMax+1; count++) 
-    {
-        // Start stopwatch
-        WFC* wfc;
-        auto start = std::chrono::high_resolution_clock::now();
-        
-        if (WFCTYPE == 1)
-        {
-            if (((x % w <= 5 && x % w != 0) || (y % h < 5 && y % h != 0))) std::cout << "this might take a while" << std::endl;
-            wfc = new WFC(x, y, w, h, count, filename + ".txt");
-        }
-        else 
-        {
-            wfc = new WFC(x, y, count, filename + ".txt");
+    std::string input;
+    int offset = 0;
+    while (true) {
+        float time = 0;
+        int countMax = 1 + offset;
+        int x = 100; int y = 100;
+        int w = 10; int h = 10;
+        int WFCTYPE = 0;
+        std::string filename = "Preset1";
+
+        for (int count = 1 + offset; count < countMax + 1; count++) {
+            // Start stopwatch
+            WFC* wfc;
+            auto start = std::chrono::high_resolution_clock::now();
+
+            if (WFCTYPE == 1) {
+                if (((x % w <= 5 && x % w != 0) || (y % h < 5 && y % h != 0))) std::cout << "this might take a while" << std::endl;
+                wfc = new WFC(x, y, w, h, count, filename + ".txt");
+            }
+            else {
+                wfc = new WFC(x, y, count, filename + ".txt");
+            }
+
+            // Stop stopwatch
+            auto stop = std::chrono::high_resolution_clock::now();
+            auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
+            time += duration.count();
+            std::cout << time << std::endl;
+            delete(wfc);
         }
 
-        // Stop stopwatch
-        auto stop = std::chrono::high_resolution_clock::now();
-        auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(stop - start);
-        time += duration.count();
         std::cout << time << std::endl;
-        delete(wfc);
+        std::cout << time / countMax << std::endl;
+
+        #pragma omp parallel for
+        for (int count = 1 + offset; count < countMax+1; count++) {
+            runPython(count, filename);
+        }
+
+        std::cout << "Press Enter to Continue or any other key to exit" << std::endl;
+
+        // Wait for a single key press
+        char c = _getch(); // _getch() is used instead of std::cin.get() for non-blocking single character input
+        if (c != '\r' && c != '\n') {
+            break;
+        }
+        std::cout << "Starting again.. " << std::endl;
+        offset++;
     }
-
-    std::cout << time << std::endl;
-    std::cout << time/countMax << std::endl;
-
-    for (int count = 1; count < countMax+1; count++) 
-    {
-        runPython(count,filename);
-    }
-
-    std::cout << "Press Enter to Continue";
-    std::cin.ignore();
-    
 
     return 0;
 }

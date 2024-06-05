@@ -11,6 +11,7 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
 {
     inputFile = "input/" + inputFile;
     std::string temp = "data\\Data" + std::to_string(_seed) + ".json";
+    seed = new int;
     seed = &_seed;
     width = _gridWidth;
     height = _gridHeight;
@@ -25,9 +26,13 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
 
     while (!completed)
     {
-        (*seed)++;
         CollapseTile();
         count++;
+
+        /*std::vector<Tile*> tiles;
+        for (auto tile : Grid) tiles.push_back(tile.second);
+        std::string temp = "data\\Data" + std::to_string(_seed) + ".json";*/
+        //writeToJson(tiles, temp);
 
         for (int x = 0; x < width; x++) 
         {
@@ -37,6 +42,7 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
             }
         }
 
+        //std::cout << count << std::endl;
         if (count > width*height) 
         {
             completed = true;
@@ -91,33 +97,36 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
     InitRules(inputFile);
     //std::cout << "Init Grid" << std::endl;
     InitGrid();
-
+    
     bool regionsCompleted = false;
-
+    int cunt = 2;
     while(!regionsCompleted)
     {
-        /*for (auto reg : regionGrid)
-        {
-            std::cout << reg.first.first << ", " << reg.first.second << " " << reg.second->GetEntropy() << std::endl;
-        }*/
+        //for (auto reg : regionGrid)
+        //{
+        //    if(!reg.second->completed)std::cout << reg.first.first << ", " << reg.first.second << " " << reg.second->entropy << std::endl;
+        //}
         auto _list = GetLowestRegionEntropyList();
+        
+        /*_list.clear();
+
+        for (auto reg : regionGrid) 
+        {
+            if(!reg.second->completed) _list.push_back(reg.first);
+        }*/
+
         if (_list.size() <= 0)
         {
             regionsCompleted = true;
             continue;
         }
         std::random_device rd;
-        std::mt19937 gen(*seed);
+        std::mt19937 gen((*seed)++);
         std::uniform_int_distribution<> distribution(0, _list.size() - 1);
         int rng = distribution(gen);
         currentRegion = _list[rng];
-        /*
-        std::cout << std::endl;
-        std::cout << currentRegion.first << ", " << currentRegion.second << " " << regionGrid[currentRegion]->GetEntropy() << std::endl;
-        std::cout << std::endl;*/
-
+        
         useableGrid = regionGrid[_list[rng]]->Grid;
-        //reg.second.outputdata();
 
         int count = 0;
         int lastCount = -1;
@@ -141,7 +150,6 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
                     if (useableGrid[{x, y}]->collapsed) count++;
                 }
             }
-
             if (count > regionGrid[currentRegion]->width * regionGrid[currentRegion]->height)
             {
                 completed = true;
@@ -184,9 +192,14 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
         }
 
         regionGrid[currentRegion]->completed = true;
-    }
-    //std::cout << "starting right" << std::endl;
 
+
+        /*std::vector<Tile*> tiles;
+        for (auto tile : Grid) tiles.push_back(tile.second);
+        temp = "data\\Data" + std::to_string(cunt) + ".json";
+        writeToJson(tiles, temp);
+        cunt++;*/
+    }
 
     std::vector<Tile*> tiles;
     for (auto tile : Grid) tiles.push_back(tile.second);
@@ -217,10 +230,42 @@ WFC::~WFC()
 
 }
 
+bool compareRules(const Rule& a, const Rule& b) {
+    if (a.up != b.up) {
+        return a.up < b.up;
+    }
+    else if (a.right != b.right) {
+        return a.right < b.right;
+    }
+    else if (a.down != b.down) {
+        return a.down < b.down;
+    }
+    else {
+        return a.left < b.left;
+    }
+}
+
+void WFC::printNeighbours(const std::map<int, Neighbours>& neighbourRules) {
+    for (const auto& neigh : neighbourRules) {
+        std::cout << "Rule ID: " << neigh.first << std::endl;
+        std::cout << entropyList[neigh.first].up <<"  Up: ";
+        for (int n : neigh.second.up) std::cout << n << " ";
+        std::cout << std::endl << entropyList[neigh.first].right << "  Right: ";
+        for (int n : neigh.second.right) std::cout << n << " ";
+        std::cout << std::endl << entropyList[neigh.first].down << "  Down: ";
+        for (int n : neigh.second.down) std::cout << n << " ";
+        std::cout << std::endl << entropyList[neigh.first].left << "  Left: ";
+        for (int n : neigh.second.left) std::cout << n << " ";
+        std::cout << "\n";
+    }
+}
+
 void WFC::InitRules(std::string inputFile)
 {
     std::vector<Rule> _rules = readCSV(inputFile);
      
+    std::sort(_rules.begin(), _rules.end(), compareRules);
+
     for (int id = 0; id < _rules.size(); id++)
     {
         entropyList[id] = _rules[id];
@@ -230,6 +275,35 @@ void WFC::InitRules(std::string inputFile)
     {
         entropyKeys.push_back(entropy.first);
     }
+    //neighbourRules = findNeighbours(entropyList);
+    //printNeighbours(neighbourRules);
+}
+
+std::map<int, Neighbours> WFC::findNeighbours(const std::map<int, Rule>& entropyList) {
+    std::map<int, Neighbours> neighbourRules;
+
+    for (const auto& rule : entropyList) {
+        Neighbours neighbours;
+
+        for (const auto& other : entropyList) {
+            if (rule.second.up == other.second.down) {
+                neighbours.up.push_back(other.first);
+            }
+            if (rule.second.right == other.second.left) {
+                neighbours.right.push_back(other.first);
+            }
+            if (rule.second.down == other.second.up) {
+                neighbours.down.push_back(other.first);
+            }
+            if (rule.second.left == other.second.right) {
+                neighbours.left.push_back(other.first);
+            }
+        }
+
+        neighbourRules[rule.first] = neighbours;
+    }
+
+    return neighbourRules;
 }
 
 std::vector<Rule> WFC::readCSV(const std::string& filename) {
@@ -310,6 +384,7 @@ void WFC::InitGrid()
                 Tile* tile = new Tile(x, y, entropyKeys, seed);
                 Grid[{x,y}] = tile;
                 Grid[{x, y}]->entropyList = &entropyList;
+                Grid[{x, y}]->neighbourRules = &neighbourRules;
             }
         }
 
@@ -349,17 +424,22 @@ void WFC::InitGrid()
                 int currentSubWidth = (x + regionWidth > width) ? (width - x) : regionWidth;
                 int currentSubHeight = (y + regionHeight > height) ? (height - y) : regionHeight;
 
-                std::unordered_map<std::pair<int, int>, Tile*, pair_hash> grid;
+                std::map<std::pair<int, int>, Tile*> grid;
 
                 for (int i = x; i < x + currentSubWidth; i++) {
                     for (int k = y; k < y + currentSubHeight; k++) {
-                        // Simply copy the shared_ptr
-                        grid[{i,k}] = Grid[{i, k}];
+                        grid[{i, k}] = Grid[{i, k}];
                     }
                 }
 
                 Region* reg = new Region(grid, currentSubWidth, currentSubHeight, x, y);
                 // Directly construct the Region in the map
+                for (int i = x; i < x + currentSubWidth; i++) {
+                    for (int k = y; k < y + currentSubHeight; k++) {
+                        // Simply copy the shared_ptr
+                        Grid[{i, k}]->region = reg;
+                    }
+                }
                 regionGrid.emplace(std::make_pair(xCount, yCount), reg);
 
                 yCount++;
@@ -368,17 +448,10 @@ void WFC::InitGrid()
             yCount = 0;
         }
 
-        for (auto& reg : regionGrid) 
+        for (auto& reg : regionGrid)
         {
             reg.second->GetEntropy();
         }
-
-
-
-        /*for (auto& reg : regionGrid)
-        {
-            reg.second.outputdata();
-        }*/
     }
 }
 
@@ -393,7 +466,7 @@ void WFC::CollapseTile()
 
     if (_list.size() <= 0) return;
     std::random_device rd;
-    std::mt19937 gen(*seed);
+    std::mt19937 gen((*seed)++);
     std::uniform_int_distribution<> distribution(0, _list.size() - 1);
     int rng = distribution(gen);
 
@@ -433,11 +506,13 @@ void WFC::Propergate(std::pair<int,int> origin)
         tile->Propagate();
         done.emplace(current);
         todo.pop();
-        if(currentRegion.first != INT_MAX)regionGrid[currentRegion]->entropy -= startingEntropy - tile->entropy.size();
+        if (tile->region != nullptr)
+        {
+            tile->region->entropy -= startingEntropy - tile->entropy.size();
+        }
         // If entropy was reduced, check neighbors
         if (startingEntropy > tile->entropy.size()) 
         {
-            //if (currentRegion.first != INT_MAX) regionGrid[currentRegion].entropy -= startingEntropy - tile->entropy.size();
             checkAndAdd(tile->up);
             checkAndAdd(tile->right);
             checkAndAdd(tile->down);
@@ -481,6 +556,10 @@ std::vector<std::pair<int, int>> WFC::GetLowestEntropyList() {
             lowestEntropyTiles.push_back(tileEntry.first);
         }
     }
+    std::random_device rd;  // Non-deterministic random device
+    std::mt19937 g((*seed)++);
+
+    std::shuffle(lowestEntropyTiles.begin(), lowestEntropyTiles.end(), g);
 
     // Return the list of positions with the lowest entropy
     return lowestEntropyTiles;
