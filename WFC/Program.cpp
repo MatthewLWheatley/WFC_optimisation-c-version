@@ -50,19 +50,21 @@ int main() {
     while (true) {
         float time = 0;
         int countMax = 1 + offset;
-        int x = 100; int y = 100;
-        int w = 10; int h = 10;
-        int WFCTYPE = 0;
+        int x = 1000; int y = 1000;
+        int w = 100; int h = 100;
+        int WFCTYPE = 1;
+        bool nested = true;
         std::string filename = "Preset1";
 
-        for (int count = 1 + offset; count < countMax + 1; count++) {
+        for (int count = 1 + offset; count < countMax + 1; count++) 
+        {
             // Start stopwatch
             WFC* wfc;
             auto start = std::chrono::high_resolution_clock::now();
 
             if (WFCTYPE == 1) {
                 if (((x % w <= 5 && x % w != 0) || (y % h < 5 && y % h != 0))) std::cout << "this might take a while" << std::endl;
-                wfc = new WFC(x, y, w, h, count, filename + ".txt");
+                wfc = new WFC(x, y, w, h, count, filename + ".txt",nested);
             }
             else {
                 wfc = new WFC(x, y, count, filename + ".txt");

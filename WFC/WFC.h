@@ -5,7 +5,7 @@ class WFC
 public:
 	WFC() {};
 	WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile = "Preset1.txt");
-	WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, int _seed, std::string inputFile = "Preset1.txt");
+	WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, int _seed, std::string inputFile = "Preset1.txt", bool nested = false);
 	WFC(int _ySubSections, int _xSubSections, int _regionHeight, int _regionWidth, int variations);
 
 	~WFC();
@@ -29,9 +29,9 @@ public:
 	void writeToJson(const std::vector<Tile*> tiles, const std::string& filename);
 private:
 	int *seed = 0;
-	std::map<std::pair<int, int>, Tile*> Grid;
-	std::map<std::pair<int, int>, Tile*> useableGrid;
-	std::map<std::pair<int, int>, Region*> regionGrid;
+	std::unordered_map<std::pair<int, int>, Tile*,pair_hash> Grid;
+	std::unordered_map<std::pair<int, int>, Tile*, pair_hash> useableGrid;
+	std::unordered_map<std::pair<int, int>, Region*, pair_hash> regionGrid;
 	std::map<int, Rule> entropyList;
 	std::map<int, Neighbours> neighbourRules;
 	std::vector<int> entropyKeys;

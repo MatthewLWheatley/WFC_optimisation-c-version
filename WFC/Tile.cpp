@@ -64,23 +64,23 @@ void Tile::Propagate()
         newEntropy = tempEntropy;
         };
     filterRules(up, [](const Rule& r) { return r.down; }, [](const Rule& r) { return r.up; });
-    /*if (newEntropy.size() == 1) 
+    if (newEntropy.size() == 1) 
     {
         entropy = newEntropy;
         return;
-    }*/
+    }
     filterRules(right, [](const Rule& r) { return r.left; }, [](const Rule& r) { return r.right; });
-    /*if (newEntropy.size() == 1)
+    if (newEntropy.size() == 1)
     {
         entropy = newEntropy;
         return;
-    }*/
+    }
     filterRules(down, [](const Rule& r) { return r.up; }, [](const Rule& r) { return r.down; });
-    /*if (newEntropy.size() == 1)
+    if (newEntropy.size() == 1)
     {
         entropy = newEntropy;
         return;
-    }*/
+    }
     filterRules(left, [](const Rule& r) { return r.right; }, [](const Rule& r) { return r.left; });
 
     entropy = newEntropy;

@@ -29,11 +29,6 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
         CollapseTile();
         count++;
 
-        /*std::vector<Tile*> tiles;
-        for (auto tile : Grid) tiles.push_back(tile.second);
-        std::string temp = "data\\Data" + std::to_string(_seed) + ".json";*/
-        //writeToJson(tiles, temp);
-
         for (int x = 0; x < width; x++) 
         {
             for (int y = 0; y < height; y++) 
@@ -83,7 +78,7 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile)
     writeToJson(tiles, temp);
 }
 
-WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, int _seed, std::string inputFile)
+WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, int _seed, std::string inputFile,bool nested)
 {
     WFCTYPE = 1;
     inputFile = "input/" + inputFile;
@@ -106,14 +101,16 @@ WFC::WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, i
         //{
         //    if(!reg.second->completed)std::cout << reg.first.first << ", " << reg.first.second << " " << reg.second->entropy << std::endl;
         //}
-        auto _list = GetLowestRegionEntropyList();
-        
-        /*_list.clear();
 
+        std::vector<std::pair<int, int>> _list;
+
+        if(nested)
+        _list = GetLowestRegionEntropyList();
+        else
         for (auto reg : regionGrid) 
-        {
-            if(!reg.second->completed) _list.push_back(reg.first);
-        }*/
+                {
+                if(!reg.second->completed) _list.push_back(reg.first);
+                }
 
         if (_list.size() <= 0)
         {
@@ -382,12 +379,10 @@ void WFC::InitGrid()
             for (int y = 0; y < height; y++)
             {
                 Tile* tile = new Tile(x, y, entropyKeys, seed);
-                Grid[{x,y}] = tile;
+                Grid[{x, y}] = tile;
                 Grid[{x, y}]->entropyList = &entropyList;
-                Grid[{x, y}]->neighbourRules = &neighbourRules;
             }
         }
-
         for (auto tile : Grid) {
             Tile* _tile = tile.second;
 
@@ -412,7 +407,6 @@ void WFC::InitGrid()
             }
         }
     }
-
     if (WFCTYPE == 1)
     {
         int xCount = 0;
@@ -424,7 +418,7 @@ void WFC::InitGrid()
                 int currentSubWidth = (x + regionWidth > width) ? (width - x) : regionWidth;
                 int currentSubHeight = (y + regionHeight > height) ? (height - y) : regionHeight;
 
-                std::map<std::pair<int, int>, Tile*> grid;
+                std::unordered_map<std::pair<int, int>, Tile*, pair_hash> grid;
 
                 for (int i = x; i < x + currentSubWidth; i++) {
                     for (int k = y; k < y + currentSubHeight; k++) {
