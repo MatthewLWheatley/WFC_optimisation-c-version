@@ -56,6 +56,7 @@ int main() {
         int WFCTYPE = 2;
         bool nested = false;
         std::string filename = "Preset1";
+        std::string filenameStitch = "Preset1_5";
 
         for (int count = 1 + offset; count < countMax + 1; count++) 
         {
@@ -65,7 +66,7 @@ int main() {
 
             if (WFCTYPE == 2) 
             {
-                wfc = new WFC(x, y, w, h, stitchedSize,count, filename + ".txt");
+                wfc = new WFC(x, y, w, h, stitchedSize,count, filename + ".txt", filenameStitch + ".txt");
             }
             else if (WFCTYPE == 1) {
                 if (((x % w <= 5 && x % w != 0) || (y % h < 5 && y % h != 0))) std::cout << "this might take a while" << std::endl;

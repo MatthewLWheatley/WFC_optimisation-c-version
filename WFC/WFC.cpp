@@ -67,7 +67,6 @@ WFC::WFC(int _gridWidth, int _gridHeight, int _seed, std::string inputFile)
 
         lastCount = count;
         count = 0;
-
     }
 
     //std::cout << "starting right" << std::endl;
@@ -205,7 +204,7 @@ WFC::WFC(int _gridWidth, int _gridHeight, int _regionWidth, int _regionHeight, i
     writeToJson(tiles, temp);
 }
 
-WFC::WFC(int _gridWidth, int _gridHeight, int _regionWidth, int _regionHeight, int _stichedSize, int _seed, std::string inputFile)
+WFC::WFC(int _gridWidth, int _gridHeight, int _regionWidth, int _regionHeight, int _stichedSize, int _seed, std::string inputFile, std::string inputFileStitch)
 {
     WFCTYPE = 2;
     inputFile = "input/" + inputFile;
@@ -218,7 +217,7 @@ WFC::WFC(int _gridWidth, int _gridHeight, int _regionWidth, int _regionHeight, i
     stichSize = _stichedSize;
     
     //std::cout << "Init rules" << std::endl;
-    InitRules(inputFile);
+    InitRules(inputFile, inputFileStitch);
     //std::cout << "Init Grid" << std::endl;
     InitGrid();
 
@@ -372,21 +371,41 @@ void WFC::printNeighbours(const std::map<int, Neighbours>& neighbourRules) {
     }
 }
 
-void WFC::InitRules(std::string inputFile)
+void WFC::InitRules(std::string inputFile, std::string inputFileStitch)
 {
-    std::vector<Rule> _rules = readCSV(inputFile);
-     
-    std::sort(_rules.begin(), _rules.end(), compareRules);
-
-    for (int id = 0; id < _rules.size(); id++)
+    if (WFCTYPE != 2)
     {
-        entropyList[id] = _rules[id];
+        std::vector<Rule> _rules = readCSV(inputFile);
+
+        std::sort(_rules.begin(), _rules.end(), compareRules);
+
+        for (int id = 0; id < _rules.size(); id++)
+        {
+            entropyList[id] = _rules[id];
+            entropyKeys.push_back(id);
+        }
     }
 
-    for (const auto& entropy : entropyList)
+    if (WFCTYPE == 2)
     {
-        entropyKeys.push_back(entropy.first);
+        std::vector<Rule> _rules = readCSV(inputFile);
+        std::vector<Rule> _rules2 = readCSV(inputFileStitch);
+
+        std::sort(_rules.begin(), _rules.end(), compareRules);
+
+        for (int id = 0; id < _rules.size(); id++)
+        {
+            entropyList[id] = _rules[id];
+            entropyKeys.push_back(id);
+        }
+
+        for (int id = entropyList.size(); id < _rules.size() + entropyList.size(); id++)
+        {
+            entropyList[id] = _rules2[id - entropyList.size()];
+            entropyKeysStitch.push_back(id - entropyList.size());
+        }
     }
+
     //neighbourRules = findNeighbours(entropyList);
     //printNeighbours(neighbourRules);
 }
@@ -492,7 +511,7 @@ struct RegionTemp {
 
 void WFC::InitGrid() 
 {
-    if (WFCTYPE == 0 || WFCTYPE == 1 || WFCTYPE == 2)
+    if (WFCTYPE == 0 || WFCTYPE == 1)
     {
         for (int x = 0; x < width; x++)
         {
@@ -571,6 +590,39 @@ void WFC::InitGrid()
 
     if (WFCTYPE == 2) 
     {
+        for (int x = 0; x < width; x++)
+        {
+            for (int y = 0; y < height; y++)
+            {
+                Tile* tile = new Tile(x, y, entropyKeys, seed);
+                Grid[{x, y}] = tile;
+                Grid[{x, y}]->entropyList = &entropyList;
+            }
+        }
+        for (auto tile : Grid) {
+            Tile* _tile = tile.second;
+
+            auto neighborIt = Grid.find({ _tile->x, _tile->y - 1 });
+            if (neighborIt != Grid.end()) {
+                _tile->up = neighborIt->second;
+            }
+
+            neighborIt = Grid.find({ _tile->x + 1, _tile->y });
+            if (neighborIt != Grid.end()) {
+                _tile->right = neighborIt->second;
+            }
+
+            neighborIt = Grid.find({ _tile->x, _tile->y + 1 });
+            if (neighborIt != Grid.end()) {
+                _tile->down = neighborIt->second;
+            }
+
+            neighborIt = Grid.find({ _tile->x - 1, _tile->y });
+            if (neighborIt != Grid.end()) {
+                _tile->left = neighborIt->second;
+            }
+        }
+
         std::vector<RegionTemp> regions;
         int currentY = 0;
         
@@ -578,6 +630,7 @@ void WFC::InitGrid()
         int rH = regionHeight; int rW = regionHeight;
         int sS = stichSize;
         
+        //first file
         for (int y = 0; y < gH; y += rH + sS) {
             for (int x = 0; x < gW; x += rW + sS) {
                 RegionTemp region;
@@ -592,6 +645,7 @@ void WFC::InitGrid()
             }
         }
 
+        //secondfiles
         for (int y = rH; y < gH; y += rH + sS)
         {
             for (int x = rW; x < gW; x += rW + sS)

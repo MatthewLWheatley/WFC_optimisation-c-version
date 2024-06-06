@@ -6,13 +6,13 @@ public:
 	WFC() {};
 	WFC(int _gridHeight, int _gridWidth, int _seed, std::string inputFile = "Preset1.txt");
 	WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, int _seed, std::string inputFile = "Preset1.txt", bool nested = false);
-	WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, int stichedSize, int _seed, std::string inputFile = "Preset1.txt");
+	WFC(int _gridHeight, int _gridWidth, int _regionHeight, int _regionWidth, int stichedSize, int _seed, std::string inputFile = "Preset1.txt", std::string inputFileStitch = "Preset1_5.txt");
 
 	~WFC();
 
 	void printNeighbours(const std::map<int, Neighbours>& neighbourRules);
 
-	void InitRules(std::string inputFile);
+	void InitRules(std::string inputFile, std::string inputFileStitch = "");
 	std::map<int, Neighbours> findNeighbours(const std::map<int, Rule>& entropyList);
 	void InitGrid();
 	
@@ -35,6 +35,7 @@ private:
 	std::map<int, Rule> entropyList;
 	std::map<int, Neighbours> neighbourRules;
 	std::vector<int> entropyKeys;
+	std::vector<int> entropyKeysStitch;
 	std::vector<std::pair<int, int>> regionsList;
 
 	std::stack<std::pair<int, int>> tileStack;
