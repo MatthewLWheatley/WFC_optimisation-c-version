@@ -134,6 +134,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="nlohman\json.hpp" />
+    <ClInclude Include="Region.h" />
     <ClInclude Include="Structures.h" />
     <ClInclude Include="Tile.h" />
     <ClInclude Include="WFC.h" />

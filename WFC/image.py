@@ -61,46 +61,6 @@ def load_tilesheet(tilesheet_path, tile_size):
     
     return tiles
 
-def map_string_to_tile_index(pattern):
-    """
-    Maps a string pattern to a tile index based on the provided mappings.
-
-    Parameters:
-    pattern (tuple): The string pattern to map.
-
-    Returns:
-    int: The corresponding tile index.
-    """
-    mapping = {
-        ("BAA","AAB","BBB","BBB"): [0],
-        ("BBB","BAA","AAB","BBB"): [1],
-        ("BBB","BBB","BAA","AAB"): [2],
-        ("AAB","BBB","BBB","BAA"): [3],
-        ("AAA","AAB","BBB","BAA"): [4],
-        ("BAA","AAA","AAB","BBB"): [5],
-        ("BBB","BAA","AAA","AAB"): [6],
-        ("AAB","BBB","BAA","AAA"): [7],
-        ("AAA","AAA","AAA","AAA"): [8,15,16],
-        ("AAB","BAA","AAA","AAA"): [9],
-        ("AAA","AAB","BAA","AAA"): [10],
-        ("AAA","AAA","AAB","BAA"): [11],
-        ("BAA","AAA","AAA","AAB"): [12],
-        ("BBB","BBB","BBB","BBB"): [13,14,24,25],
-        ("BAB","BAB","BAB","BAB"): [17],
-        ("BBB","BAB","BBB","BBB"): [18],
-        ("BBB","BBB","BAB","BBB"): [19],
-        ("BBB","BBB","BBB","BAB"): [20],
-        ("BAB","BBB","BBB","BBB"): [21],
-        ("BBB","BAB","BBB","BAB"): [22],
-        ("BAB","BBB","BAB","BBB"): [23],
-        ("BAB","BAA","AAA","AAB"): [26],
-        ("AAB","BAB","BAA","AAA"): [27],
-        ("AAA","AAB","BAB","BAA"): [28],
-        ("BAA","AAA","AAB","BAB"): [29],
-    }
-
-    return random.choice(mapping.get(pattern, [0]))
-
 def create_image(data_array, tiles, suffix, tile_size, scale_factor=2):
     """
     Creates an image based on the data array using tiles and saves it with the given suffix.
@@ -142,9 +102,12 @@ def create_image(data_array, tiles, suffix, tile_size, scale_factor=2):
     
 if __name__ == "__main__":
     suffix = sys.argv[1] if len(sys.argv) > 1 else ""
-    tilesheet_path = sys.argv[2] if len(sys.argv) > 2 else "input/tile4.png"  # Default to "input/tile4.png" if not provided
+    tilesheet_path = sys.argv[2] if len(sys.argv) > 2 else "input/tile1.png"  # Default to "input/tile4.png" if not provided
     file_path = f"data/Data{suffix}.json"
-    tile_size = (16, 16)  # Set the correct tile size (width, height)
+
+    tilesheet = Image.open(tilesheet_path)
+    tilesheet_width, tilesheet_height = tilesheet.size
+    tile_size = (tilesheet_height, tilesheet_height)  # Set the correct tile size (width, height)
     
     if not os.path.exists(file_path):
         print(f"Error: The file '{file_path}' does not exist.")
